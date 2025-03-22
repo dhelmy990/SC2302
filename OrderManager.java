@@ -11,7 +11,6 @@ public class OrderManager {
     // Int -1 if TxnManager FAILS
     // ------------------------------------------------------------
     public int requestOrder(String stallName, List <String> items){
-
         int numOfItems = items.size();
         List <Order> orders = new ArrayList<Order>(); // Create empty array to contain Order objects
         for (int i = 0; i < numOfItems; i++){
