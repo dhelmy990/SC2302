@@ -2,12 +2,13 @@ import java.util.*;
 
 public class TxnManager {
 
-    static List <Transaction> txns; // List of Transaction object
+    static List <Transaction> txns; // List of Transaction objects
 
-    public static boolean verifyTxn(String storeName, List <Order> orders){
+    // Returns true if Txn is successfully processed, false otherwise. Ensure stallName is identical to that in Stall object.
+    public static boolean verifyTxn(String stallName, Order order){
         int success = getPayment();
         if (success == 1){
-            Transaction txn = new Transaction(storeName, orders);
+            Transaction txn = new Transaction(stallName, order);
             txns.add(txn);
             return true;
         } else{
@@ -15,6 +16,18 @@ public class TxnManager {
         }
     }
 
+    // Returns the Transaction Object associated with the txnID, or null if Transaction is not found.
+    public static Transaction getTxn(int txnID){
+        int txnCount = txns.size();
+        for (int i = 0; i < txnCount; i++){
+            if (txns.get(i).getTxnID() == txnID){
+                return txns.get(i);
+            }
+        }
+        return null;
+    }
+
+    // Returns 1 if payment is successful, 0 otherwise.
     private static int getPayment(){
         // To implement
         int paymentMode = getPaymentMode();

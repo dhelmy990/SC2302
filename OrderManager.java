@@ -10,20 +10,15 @@ public class OrderManager {
     // Int Estimated waiting time in MINUTES
     // Int -1 if TxnManager FAILS
     // ------------------------------------------------------------
-    public int requestOrder(String stallName, List <String> items){
-        int numOfItems = items.size();
-        List <Order> orders = new ArrayList<Order>(); // Create empty array to contain Order objects
-        for (int i = 0; i < numOfItems; i++){
-            Order newOrder = new Order(items.get(i)); // Add new Order objects to array
-            orders.add(newOrder);
-        }
-        boolean proceed = TxnManager.verifyTxn(stallName, orders); // Attempt to process transaction
+    public int requestOrder(String stallName, List <Item> items){
+        Order newOrder = new Order(items); // Create new Order object
+        boolean proceed = TxnManager.verifyTxn(stallName, newOrder); // Attempt to process transaction
         if (!proceed){
             return -1; // Return -1 if transaction fails
         }
         // To implement:
-        // Pass orders to QueueManager
-        // Retrieve est wait time from QueueManager
+        // Pass order to QueueManager
+        // Retrieve total est wait time from QueueManager
         return 1; // Placeholder -- To return est wait time in MINUTES
     }
 }
