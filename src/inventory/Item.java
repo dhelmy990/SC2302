@@ -1,8 +1,8 @@
 package inventory;
 public class Item {
-    String name;
-    int price;
-    int prepTime;
+    private final String name;
+    private final int price;
+    private int prepTime;
 
     public Item(String name, int price, int prepTime){
         this.name = name;
@@ -12,6 +12,14 @@ public class Item {
 
     public int getPrepTime(){
         return prepTime;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getPrice() {
+        return price;
     }
 
     public void setPrepTime(int prepTime){

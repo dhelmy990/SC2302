@@ -1,69 +1,69 @@
 package transactions;
-import java.util.*;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 import orders.Order;
 
-public class TxnManager {
+public class TxnManager implements ITransactionManager {
+    private final List<Transaction> txns = new ArrayList<>();
 
-    static List <Transaction> txns; // List of Transaction objects
-
-    // Returns true if Txn is successfully processed, false otherwise. Ensure stallName is identical to that in Stall object.
-    public static boolean verifyTxn(String stallName, Order order){
+    @Override
+    public boolean verifyTxn(String stallName, Order order) {
         int success = getPayment();
-        if (success == 1){
+        if (success == 1) {
             Transaction txn = new Transaction(stallName, order);
             txns.add(txn);
             return true;
-        } else{
-            return false;
         }
+        return false;
     }
 
-    // Returns the Transaction Object associated with the txnID, or null if Transaction is not found.
-    public static Transaction getTxn(int txnID){
-        int txnCount = txns.size();
-        for (int i = 0; i < txnCount; i++){
-            if (txns.get(i).getTxnID() == txnID){
-                return txns.get(i);
+    @Override
+    public Transaction getTxn(int txnID) {
+        for (Transaction txn : txns) {
+            if (txn.getTxnID() == txnID) {
+                return txn;
             }
         }
         return null;
     }
 
-    // Returns 1 if payment is successful, 0 otherwise.
-    private static int getPayment(){
-        // To implement
-        int paymentMode = getPaymentMode();
-        int paymentStatus = 0;
-        switch (paymentMode){
-            case 1: paymentStatus = cardPayment();
-                    break;
-            default: paymentStatus = 0;
-        }
-        if (paymentStatus == 0){
-            return 0;
-        }
-        return 1;
+    @Override
+    public List<Transaction> getAllTransactions() {
+        return new ArrayList<>(txns); // Return a copy to prevent external modification
     }
 
-    private static int getPaymentMode(){
+    private int getPayment() {
+        int paymentMode = getPaymentMode();
+        int paymentStatus = 0;
+        switch (paymentMode) {
+            case 1:
+                paymentStatus = cardPayment();
+                break;
+            default:
+                paymentStatus = 0;
+        }
+        return paymentStatus;
+    }
+
+    private int getPaymentMode() {
         System.out.println("Please select payment mode:");
         System.out.println("(1) Card Payment");
         System.out.println("(2) Cancel");
-        Scanner scn = new Scanner(System.in); 
+        Scanner scn = new Scanner(System.in);
         int mode = scn.nextInt();
-        scn.close();
+        // Do not close the scanner here to avoid closing System.in
         return mode;
-        
     }
 
-    private static int cardPayment(){
-        Scanner scn = new Scanner(System.in); 
+    private int cardPayment() {
+        Scanner scn = new Scanner(System.in);
         System.out.println("Please enter card number:");
         scn.nextInt();
         System.out.println("Please enter security code:");
         scn.nextInt();
-        scn.close();
+        // Do not close the scanner here to avoid closing System.in
         return 1;
     }
 }

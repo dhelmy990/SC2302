@@ -15,6 +15,10 @@ public class Stall {
         this.ownerUsername = ownerUsername;
         this.inventory = new Inventory();
     }
+    public void viewMenu(){
+        System.out.println("Menu for stall: " + name);
+        inventory.displayItems();
+    }
 
     public String getStallId() {
         return stallId;

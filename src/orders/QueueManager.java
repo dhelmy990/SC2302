@@ -1,6 +1,7 @@
 package orders;
 
 import java.util.*;
+import transactions.*;
 
 public class QueueManager {
     private static QueueManager instance;

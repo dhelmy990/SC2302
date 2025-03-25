@@ -1,20 +1,21 @@
 import inventory.Item;
+import java.util.*;
 import orders.OrderManager;
+import stalls.CanteenManager;
+import stalls.IStallService;
 import stalls.Stall;
+import transactions.ITransactionManager;
+import transactions.Transaction;
 import transactions.TxnManager;
 import users.Admin;
 import users.Diner;
 import users.Owner;
 import users.User;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
-
 public class Main {
     private static Scanner scanner = new Scanner(System.in);
     private static List<User> users = new ArrayList<>();
-    private static List<Stall> stalls = new ArrayList<>();
+    private static IStallService canteenManager = new CanteenManager();
     private static User currentUser;
 
     public static void main(String[] args) {
@@ -50,7 +51,7 @@ public class Main {
         // Add sample users
         Admin admin = new Admin("admin", "admin@example.com", "password");
         Owner owner = new Owner("owner1", "owner1@example.com", "password", null);
-        Diner diner = new Diner("diner1", "diner1@example.com", "password");
+        Diner diner = new Diner("diner1", "diner1@example.com", "password", canteenManager);
 
         users.add(admin);
         users.add(owner);
@@ -58,7 +59,7 @@ public class Main {
 
         // Add sample stall
         Stall stall = new Stall("S1", "Chicken Rice Stall", "owner1");
-        stalls.add(stall);
+        ((CanteenManager) canteenManager).addStall(stall);
 
         // Add sample items to stall's inventory
         Item item1 = new Item("Chicken Rice", 5, 10);
@@ -97,7 +98,7 @@ public class Main {
         User newUser;
         switch (role.toLowerCase()) {
             case "diner":
-                newUser = new Diner(username, email, password);
+                newUser = new Diner(username, email, password, canteenManager);
                 break;
             case "owner":
                 newUser = new Owner(username, email, password, null);
@@ -138,7 +139,7 @@ public class Main {
 
         switch (choice) {
             case 1:
-                diner.viewStalls(stalls);
+                diner.viewStalls();
                 break;
             case 2:
                 placeOrder(diner);
@@ -155,17 +156,17 @@ public class Main {
     }
 
     private static void placeOrder(Diner diner) {
-        diner.viewStalls(stalls);
+        diner.viewStalls();
         System.out.print("Enter Stall ID: ");
         String stallId = scanner.nextLine();
 
-        Stall selectedStall = findStallById(stallId);
+        Stall selectedStall = ((CanteenManager) canteenManager).getStallById(stallId);
         if (selectedStall == null) {
             System.out.println("Invalid stall ID.");
             return;
         }
-
-        diner.viewMenu(selectedStall);
+        //Display menu
+        selectedStall.viewMenu();
         System.out.println("Enter item names (comma-separated): ");
         String[] itemNames = scanner.nextLine().split(",");
         List<Item> selectedItems = new ArrayList<>();
@@ -181,7 +182,7 @@ public class Main {
 
         if (!selectedItems.isEmpty()) {
             OrderManager orderManager = new OrderManager();
-            int estWaitTime = diner.placeOrder(orderManager, selectedStall, selectedItems);
+            int estWaitTime = diner.placeOrder(orderManager, selectedStall.getName(), selectedItems);
             System.out.println("Order placed successfully. Estimated wait time: " + estWaitTime + " minutes.");
         } else {
             System.out.println("No valid items selected. Order not placed.");
@@ -219,31 +220,67 @@ public class Main {
         }
     }
 
-    private static void addItemToInventory(Owner owner) {
+    private static Item createItemFromInput(Scanner scanner) {
         System.out.print("Enter item name: ");
         String name = scanner.nextLine();
+    
         System.out.print("Enter price: ");
-        int price = scanner.nextInt();
+        int price = validatePositiveInteger(scanner);
+    
         System.out.print("Enter preparation time (minutes): ");
-        int prepTime = scanner.nextInt();
-        scanner.nextLine();
+        int prepTime = validatePositiveInteger(scanner);
+    
+        return new Item(name, price, prepTime);
+    }
+    
+    private static int validatePositiveInteger(Scanner scanner) {
+        while (true) {
+            try {
+                int value = Integer.parseInt(scanner.nextLine());
+                if (value > 0) {
+                    return value;
+                } else {
+                    System.out.println("Value must be positive. Please try again.");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a valid number.");
+            }
+        }
+    }
 
-        Item newItem = new Item(name, price, prepTime);
-        owner.addItemToInventory(newItem);
+    private static void addItemToInventory(Owner owner) {
+       addItemToInventory(owner, scanner); 
     }
 
     private static void updateItemInInventory(Owner owner) {
-        System.out.print("Enter item name to update: ");
-        String name = scanner.nextLine();
-        System.out.print("Enter new price: ");
-        int price = scanner.nextInt();
-        System.out.print("Enter new preparation time (minutes): ");
-        int prepTime = scanner.nextInt();
-        scanner.nextLine();
+        updateItemInInventory(owner, scanner); 
+     }
 
-        Item updatedItem = new Item(name, price, prepTime);
-        owner.updateItemInInventory(updatedItem);
+    private static void addItemToInventory(Owner owner, Scanner scanner) {
+        System.out.println("Adding a new item to inventory:");
+        Item newItem = createItemFromInput(scanner);
+        owner.addItemToInventory(newItem);
+        System.out.println("Item added successfully: " + newItem.getName());
     }
+
+    private static void updateItemInInventory(Owner owner, Scanner scanner) {
+        System.out.println("Updating an existing item in inventory:");
+        System.out.print("Enter item name to update: ");
+        String itemName = scanner.nextLine();
+    
+        // Check if the item exists in the inventory
+        Item existingItem = owner.getManagedStall().getInventory().getItemByName(itemName);
+        if (existingItem == null) {
+            System.out.println("Item not found: " + itemName);
+            return;
+        }
+    
+        System.out.println("Enter new details for the item:");
+        Item updatedItem = createItemFromInput(scanner);
+        owner.updateItemInInventory(updatedItem);
+        System.out.println("Item updated successfully: " + updatedItem.getName());
+    }
+    
 
     private static void adminMenu(Admin admin) {
         System.out.println("1. Add User");
@@ -262,7 +299,8 @@ public class Main {
                 addStall(admin);
                 break;
             case 3:
-                viewTransactions(admin);
+                ITransactionManager txnManager = new TxnManager();
+                viewTransactions(txnManager);
                 break;
             case 4:
                 currentUser = null;
@@ -285,7 +323,7 @@ public class Main {
         User newUser;
         switch (role.toLowerCase()) {
             case "diner":
-                newUser = new Diner(username, email, password);
+                newUser = new Diner(username, email, password,canteenManager);
                 break;
             case "owner":
                 newUser = new Owner(username, email, password, null);
@@ -310,23 +348,23 @@ public class Main {
         String ownerUsername = scanner.nextLine();
 
         Stall newStall = new Stall(stallId, stallName, ownerUsername);
-        admin.addStall(stalls, newStall);
+        
+        ((CanteenManager) canteenManager).addStall(newStall);
     }
 
-    private static void viewTransactions(Admin admin) {
-        TxnManager txnManager = TxnManager.getInstance();
+    private static void viewTransactions(ITransactionManager txnManager) {
         List<Transaction> transactions = txnManager.getAllTransactions();
+        if (transactions.isEmpty()) {
+            System.out.println("No transactions found.");
+            return;
+        }
         for (Transaction txn : transactions) {
             txn.display();
         }
     }
 
     private static Stall findStallById(String stallId) {
-        for (Stall stall : stalls) {
-            if (stall.getStallId().equals(stallId)) {
-                return stall;
-            }
-        }
-        return null;
-    }
+    // Use CanteenManager to find the stall
+    return ((CanteenManager) canteenManager).getStallById(stallId);
+}
 }
