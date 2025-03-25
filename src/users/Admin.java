@@ -1,5 +1,7 @@
-package user;
+package users;
 import java.util.*;
+
+import transactions.*;
 
 public class Admin extends User{
     public Admin(String username, String email, String password) {

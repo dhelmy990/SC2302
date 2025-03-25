@@ -1,5 +1,7 @@
-package user;
+package users;
 import java.util.*;
+
+import orders.*;
 
 public class Owner extends User{
     private Stall managedStall;

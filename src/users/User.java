@@ -1,5 +1,4 @@
-package user;
-import java.util.*;
+package users;
 
 public abstract class User {
     protected String username;

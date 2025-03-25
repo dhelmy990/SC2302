@@ -1,5 +1,7 @@
-package user;
+package users;
 import java.util.*;
+
+import orders.*;
 
 public class Diner extends User{
     public Diner(String username, String email, String password) {
