@@ -1,7 +1,9 @@
 package users;
-import java.util.*;
 
+import java.util.*;
+import stalls.Stall;
 import orders.*;
+import inventory.Item;
 
 public class Owner extends User{
     private Stall managedStall;

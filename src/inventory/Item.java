@@ -4,7 +4,7 @@ public class Item {
     int price;
     int prepTime;
 
-    Item(String name, int price, int prepTime){
+    public Item(String name, int price, int prepTime){
         this.name = name;
         this.price = price;
         this.prepTime = prepTime;
