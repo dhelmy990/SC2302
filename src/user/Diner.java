@@ -12,7 +12,7 @@ public class Diner extends User{
     }
 
     // Place order via OrderManager
-    public int placeOrder(OrderManager orderManager, String stallName, List<String> items) {
+    public int placeOrder(OrderManager orderManager, String stallName, List<Item> items) {
         return orderManager.requestOrder(stallName, items);
     }
 
