@@ -5,8 +5,8 @@ import orders.Order;
 
 public class TxnManager {
 
-    static List <Transaction> txns; // List of Transaction objects
-    static Scanner scn = new Scanner(System.in); 
+    private static  List <Transaction> txns; // List of Transaction objects
+    private static Scanner scn = new Scanner(System.in); 
 
     // Returns true if Txn is successfully processed, false otherwise. Ensure stallName is identical to that in Stall object.
     public static boolean verifyTxn(String username, String stallName, Order order){

@@ -9,6 +9,7 @@ public class Order {
     private int orderID;
     private int waitingTime;
     private double totalPrice;
+    private boolean complete = false;
 
     Order(List <Item> items){
         this.items = items; // Contains an array of Item Objects
@@ -46,6 +47,14 @@ public class Order {
 
     public int getID() {
         return orderID;
+    }
+
+    public void markComplete(){
+        this.complete = true;
+    }
+
+    public boolean getCompletionStatus(){
+        return this.complete;
     }
 
     public void display() {
