@@ -41,7 +41,7 @@ public class Order {
         return totalPrice;
     }
 
-    public int getWaitingTime() {
+    public int getWaitingTime(){
         return waitingTime;
     }
 

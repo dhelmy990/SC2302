@@ -36,7 +36,11 @@ public class Transaction {
     }
 
     public int getOrderID(){
-        return order.getID();
+        return order.getID(); //???
+    }
+    
+    public Order getOrder(){
+        return order;
     }
 
     public String getStallName(){
