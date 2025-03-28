@@ -1,15 +1,10 @@
+package transactions;
 import java.util.*;
+
+import orders.Order;
 
 public class TxnManager {
 
-<<<<<<< Updated upstream:TxnManager.java
-    static List <Transaction> txns; // List of Transaction object
-
-    public static boolean verifyTxn(String storeName, List <Order> orders){
-        int success = getPayment();
-        if (success == 1){
-            Transaction txn = new Transaction(storeName, orders);
-=======
     static List <Transaction> txns; // List of Transaction objects
     static Scanner scn = new Scanner(System.in); 
 
@@ -18,7 +13,6 @@ public class TxnManager {
         int success = getPayment();
         if (success == 1){
             Transaction txn = new Transaction(username, stallName, order);
->>>>>>> Stashed changes:src/transactions/TxnManager.java
             txns.add(txn);
             return true;
         } else{
@@ -26,8 +20,6 @@ public class TxnManager {
         }
     }
 
-<<<<<<< Updated upstream:TxnManager.java
-=======
     // Returns the Transaction Object associated with the txnID, or null if Transaction is not found.
     public static Transaction getTxn(int txnID){
         int txnCount = txns.size();
@@ -62,8 +54,6 @@ public class TxnManager {
         }
     }
 
-    // Returns 1 if payment is successful, 0 otherwise.
->>>>>>> Stashed changes:src/transactions/TxnManager.java
     private static int getPayment(){
         // To implement
         int paymentMode = getPaymentMode();

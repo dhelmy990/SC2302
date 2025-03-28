@@ -14,9 +14,9 @@ public class OrderManager {
     // Int Estimated waiting time in MINUTES
     // Int -1 if TxnManager FAILS
     // ------------------------------------------------------------
-    public int requestOrder(String stallName, List <Item> items){
+    public int requestOrder(String username, String stallName, List <Item> items){
         Order newOrder = new Order(items); // Create new Order object
-        boolean proceed = TxnManager.verifyTxn(stallName, newOrder); // Attempt to process transaction
+        boolean proceed = TxnManager.verifyTxn(username, stallName, newOrder); // Attempt to process transaction
         if (!proceed){
             return -1; // Return -1 if transaction fails
         }

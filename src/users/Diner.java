@@ -1,7 +1,7 @@
 package users;
 import transactions.TxnManager;
 import java.util.*;
-
+import inventory.*;
 import orders.*;
 
 public class Diner extends User{
@@ -16,7 +16,7 @@ public class Diner extends User{
 
     // Place order via OrderManager
     public int placeOrder(OrderManager orderManager, String stallName, List<Item> items) {
-        return orderManager.requestOrder(stallName, items);
+        return orderManager.requestOrder(username, stallName, items);
     }
 
     // View order summary after payment
