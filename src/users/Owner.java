@@ -21,7 +21,7 @@ public class Owner extends User{
     }
 
     public static Owner get(int ownerid) {
-        return owners.get(ownerid);
+        return owners.get(ownerid); // Returns Owner object, retrieved using unique ownerid
     }
 
     public int getOwnerId(){
