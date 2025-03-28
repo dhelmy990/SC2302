@@ -1,12 +1,9 @@
 package services;
 
-import inventory.Item;
 import orders.Order;
 import orders.OrderManager;
 import orders.QueueManager;
 import transactions.TxnManager;
-
-import java.util.List;
 
 public class OrderService {
     private final OrderManager orderManager;
@@ -17,8 +14,8 @@ public class OrderService {
         this.txnManager = txnManager;
     }
 
-    public int placeOrder(String stallName, String username, List<Item> items) {
-        Order order = new Order(username, items);
+    // ✅ Updated to accept Order object
+    public int placeOrder(String stallName, Order order) {
         boolean isPaid = txnManager.verifyTxn(stallName, order);
 
         if (!isPaid)
@@ -33,9 +30,8 @@ public class OrderService {
     public void showOrderHistory(String userId) {
         orderManager.displayOrderHistoryForUser(userId);
     }
-    
-    public int calculateTotalCost(List<Item> items) {
-        return items.stream().mapToInt(Item::getPrice).sum();
-    }
 
+    public int calculateTotalCost(java.util.List<inventory.Item> items) {
+        return items.stream().mapToInt(inventory.Item::getPrice).sum();
+    }
 }

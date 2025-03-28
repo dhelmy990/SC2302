@@ -12,11 +12,15 @@ public class OrderManager {
         for (Order order : orders) {
             if (order.getUsername().equals(userId)) {
                 found = true;
-                int total = order.getItems().stream().mapToInt(Item::getPrice).sum();
-                System.out.println("Order ID: " + order.getID()
-                        + " | Status: " + order.getStatus()
-                        + " | Total: $" + total
-                        + " | Waiting Time: " + order.getWaitingTime() + " mins");
+                System.out.println("\nOrder ID: " + order.getID() +
+                        " | Stall: " + order.getStallName() +
+                        " | Status: " + order.getStatus() +
+                        " | Total: $" + order.getItems().stream().mapToInt(Item::getPrice).sum());
+
+                System.out.println("Items:");
+                for (Item i : order.getItems()) {
+                    System.out.println("- " + i.getName() + " ($" + i.getPrice() + ")");
+                }
             }
         }
         if (!found) {
@@ -24,7 +28,9 @@ public class OrderManager {
         }
     }
 
-    // ✅ NEW METHOD
+
+
+  
     public void addOrder(Order order) {
         orders.add(order);
     }

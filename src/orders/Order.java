@@ -9,11 +9,26 @@ public class Order {
     private final String username;
     private final List<Item> items;
     private String status = "Preparing";
+    private String paymentMethod;
+    private final String stallName;
 
-    public Order(String username, List<Item> items) {
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public String getStallName() {
+        return stallName;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
+
+    public Order(String username, List<Item> items, String stallName) {
         this.id = counter++;
         this.username = username;
         this.items = items;
+        this.stallName = stallName;
     }
 
     public int getID() {
@@ -34,6 +49,10 @@ public class Order {
 
     public void markCompleted() {
         this.status = "Completed";
+    }
+    
+    public void markCancelled() {
+        this.status = "Cancelled";
     }
 
     // ✅ Add this

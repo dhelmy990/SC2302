@@ -102,8 +102,33 @@ public class Main {
     }
 
     private static void guestFlow() {
+        String guestId = "guest_" + UUID.randomUUID().toString();
         System.out.println("\nContinuing as Guest Diner...");
-        viewStallsAndOrder("guest");
+        System.out.println("Your Guest ID (for tracking): " + guestId);
+
+        while (true) {
+            System.out.println("\n--- Guest Menu ---");
+            System.out.println("1. Order Food");
+            System.out.println("2. Track My Orders");
+            System.out.println("3. Exit");
+            System.out.print("Choose an option: ");
+            int choice = scanner.nextInt();
+            scanner.nextLine();
+
+            switch (choice) {
+                case 1 -> viewStallsAndOrder(guestId);
+                case 2 -> {
+                    System.out.print("Enter your Guest ID: ");
+                    String guestIdInput = scanner.nextLine();
+                    orderManager.displayOrderHistoryForUser(guestIdInput);
+                }
+                case 3 -> {
+                    System.out.println("Thank you for visiting!");
+                    return;
+                }
+                default -> System.out.println("Invalid choice.");
+            }
+        }
     }
 
     private static void dinerMenu(Diner diner) {
@@ -111,7 +136,8 @@ public class Main {
             System.out.println("\n--- Diner Menu ---");
             System.out.println("1. Order Food");
             System.out.println("2. View Order History");
-            System.out.println("3. Logout");
+            System.out.println("3. Cancel an Order"); 
+            System.out.println("4. Logout");
             System.out.print("Choose an option: ");
             int choice = scanner.nextInt();
             scanner.nextLine();
@@ -119,13 +145,72 @@ public class Main {
             switch (choice) {
                 case 1 -> viewStallsAndOrder(diner.getUsername());
                 case 2 -> orderService.showOrderHistory(diner.getUsername());
-                case 3 -> {
+                case 3 -> cancelOrder(diner.getUsername());
+                case 4 -> {
                     System.out.println("Logging out...");
                     return;
                 }
                 default -> System.out.println("Invalid choice.");
             }
         }
+    }
+
+    private static void cancelOrder(String username) {
+        List<Order> orders = QueueManager.getInstance().getOrdersByUser(username);
+
+        List<Order> cancellable = new ArrayList<>();
+        for (Order o : orders) {
+            if (o.getStatus().equals("Preparing")) {
+                cancellable.add(o);
+            }
+        }
+
+        if (cancellable.isEmpty()) {
+            System.out.println("No cancellable orders found.");
+            return;
+        }
+
+        System.out.println("Your current preparing orders:");
+        for (Order o : cancellable) {
+            System.out.println("Order ID: " + o.getID() + " | Items: " +
+                    o.getItems().stream().map(Item::getName).toList());
+        }
+
+        System.out.print("Enter Order ID to cancel: ");
+        int id = scanner.nextInt();
+        scanner.nextLine();
+
+        boolean cancelled = false;
+        Queue<Order> queue = QueueManager.getInstance().getAllQueues().getOrDefault(
+                getStallNameForOrder(id), new LinkedList<>());
+
+        Iterator<Order> iterator = queue.iterator();
+        while (iterator.hasNext()) {
+            Order o = iterator.next();
+            if (o.getID() == id && o.getUsername().equals(username) && o.getStatus().equals("Preparing")) {
+                o.markCancelled();
+                txnManager.updateStatusForOrder(o.getID(), "Cancelled");
+                iterator.remove();
+                System.out.println("Order cancelled successfully.");
+                cancelled = true;
+                break;
+            }
+        }
+
+        if (!cancelled) {
+            System.out.println("Order not found or cannot be cancelled.");
+        }
+    }
+
+    private static String getStallNameForOrder(int orderId) {
+        for (Map.Entry<String, Queue<Order>> entry : QueueManager.getInstance().getAllQueues().entrySet()) {
+            for (Order o : entry.getValue()) {
+                if (o.getID() == orderId) {
+                    return entry.getKey();
+                }
+            }
+        }
+        return "";
     }
 
 private static void ownerMenu(Owner owner) {
@@ -136,7 +221,9 @@ private static void ownerMenu(Owner owner) {
         System.out.println("3. Update Item in Inventory");
         System.out.println("4. View Current Orders");
         System.out.println("5. Mark Order As Completed");
-        System.out.println("6. Logout");
+        System.out.println("6. View Transaction History");
+        System.out.println("7. Logout");
+
         System.out.print("Choose an option: ");
         int choice = scanner.nextInt();
         scanner.nextLine();
@@ -190,10 +277,22 @@ private static void ownerMenu(Owner owner) {
                 if (orders.isEmpty()) {
                     System.out.println("No current orders.");
                 } else {
+                    boolean hasPreparing = false;
                     for (Order o : orders) {
-                        System.out.println("Order ID: " + o.getID() +
-                                           " | User: " + o.getUsername() +
-                                           " | Status: " + o.getStatus());
+                        if (o.getStatus().equals("Preparing")) {
+                            hasPreparing = true;
+                            System.out.println("\nOrder ID: " + o.getID() +
+                                    " | User: " + o.getUsername() +
+                                    " | Status: " + o.getStatus());
+
+                            System.out.println("Items:");
+                            for (Item item : o.getItems()) {
+                                System.out.println("- " + item.getName() + " ($" + item.getPrice() + ")");
+                            }
+                        }
+                    }
+                    if (!hasPreparing) {
+                        System.out.println("No preparing orders.");
                     }
                 }
             }
@@ -204,13 +303,15 @@ private static void ownerMenu(Owner owner) {
                 scanner.nextLine();
                 boolean updated = QueueManager.getInstance().markOrderCompleted(stall.getName(), orderId);
                 if (updated) {
+                    txnManager.updateStatusForOrder(orderId, "Completed");
                     System.out.println("Order marked as completed.");
                 } else {
                     System.out.println("Order ID not found.");
                 }
             }
 
-            case 6 -> {
+            case 6 -> showTransactionsForStall(stall.getName());
+            case 7 -> {
                 System.out.println("Logging out...");
                 return;
             }
@@ -220,6 +321,19 @@ private static void ownerMenu(Owner owner) {
     }
 }
 
+private static void showTransactionsForStall(String stallName) {
+    List<Transaction> transactions = txnManager.getAllTransactions();
+    boolean found = false;
+    for (Transaction txn : transactions) {
+        if (txn.getStallName().equals(stallName)) {
+            txn.display();
+            found = true;
+        }
+    }
+    if (!found) {
+        System.out.println("No transactions found for your stall.");
+    }
+}
 private static void adminMenu(Admin admin) {
     while (true) {
         System.out.println("\n--- Admin Menu ---");
@@ -398,60 +512,101 @@ private static void editUserDetails() {
     System.out.println("User not found.");
 }
 
-    private static void viewStallsAndOrder(String username) {
-        System.out.println("\nAvailable Stalls:");
-        for (int i = 0; i < stalls.size(); i++) {
-            System.out.println((i + 1) + ". " + stalls.get(i).getName());
+private static boolean isRegisteredDiner(String username) {
+    for (User user : users) {
+        if (user.getUsername().equals(username)) {
+            return user instanceof Diner;
         }
-        System.out.print("Select stall number: ");
-        int choice = scanner.nextInt();
-        scanner.nextLine();
-
-        Stall selectedStall = stalls.get(choice - 1);
-        System.out.println("\nMenu:");
-        List<Item> allItems = selectedStall.getInventory().getAllItems();
-        for (int i = 0; i < allItems.size(); i++) {
-            Item item = allItems.get(i);
-            System.out.println(
-                    (i + 1) + ". " + item.getName() + " ($" + item.getPrice() + ", " + item.getPrepTime() + " mins)");
-        }
-
-        List<Item> selectedItems = new ArrayList<>();
-        while (true) {
-            System.out.print("Enter item number to add to order (0 to finish): ");
-            int itemNum = scanner.nextInt();
-            scanner.nextLine();
-            if (itemNum == 0)
-                break;
-            selectedItems.add(allItems.get(itemNum - 1));
-        }
-
-        int total = orderService.calculateTotalCost(selectedItems);
-
-        System.out.println("\nOrder Summary:");
-        selectedItems.forEach(i -> System.out.println("- " + i.getName() + " ($" + i.getPrice() + ")"));
-        System.out.println("Total Cost: $" + total);
-
-        System.out.println("Choose Payment Method:");
-        System.out.println("1. Card");
-        System.out.println("2. Cash");
-        System.out.println("3. QR / PayNow");
-        System.out.print("Enter payment option: ");
-        int paymentChoice = scanner.nextInt();
-        scanner.nextLine();
-
-        System.out.print("Enter payment details (simulated): ");
-        String paymentDetails = scanner.nextLine(); // just simulate entry
-
-        int waitTime = orderService.placeOrder(selectedStall.getName(), username, selectedItems);
-        if (waitTime >= 0) {
-            System.out.println("Payment successful.");
-            System.out.println("Order placed. Estimated wait time: " + waitTime + " minutes.");
-        } else {
-            System.out.println("Payment failed. Order not placed.");
-        }
-
     }
+    return false; // Not found => probably a guest
+}
+
+private static void viewStallsAndOrder(String username) {
+    System.out.println("\nAvailable Stalls:");
+    for (int i = 0; i < stalls.size(); i++) {
+        System.out.println((i + 1) + ". " + stalls.get(i).getName());
+    }
+    System.out.print("Select stall number: ");
+    int choice = scanner.nextInt();
+    scanner.nextLine();
+
+    Stall selectedStall = stalls.get(choice - 1);
+    System.out.println("\nMenu:");
+    List<Item> allItems = selectedStall.getInventory().getAllItems();
+    for (int i = 0; i < allItems.size(); i++) {
+        Item item = allItems.get(i);
+        System.out.println(
+                (i + 1) + ". " + item.getName() + " ($" + item.getPrice() + ", " + item.getPrepTime() + " mins)");
+    }
+
+    List<Item> selectedItems = new ArrayList<>();
+    while (true) {
+        System.out.print("Enter item number to add to order (0 to finish): ");
+        int itemNum = scanner.nextInt();
+        scanner.nextLine();
+        if (itemNum == 0)
+            break;
+        selectedItems.add(allItems.get(itemNum - 1));
+    }
+    if (selectedItems.isEmpty()) {
+        System.out.println("No items selected. Order cancelled.");
+        return;
+    }
+
+    int total = orderService.calculateTotalCost(selectedItems);
+
+    System.out.println("\nOrder Summary:");
+    selectedItems.forEach(i -> System.out.println("- " + i.getName() + " ($" + i.getPrice() + ")"));
+    System.out.println("Total Cost: $" + total);
+
+    System.out.println("Choose Payment Method:");
+    System.out.println("1. Card");
+    System.out.println("2. Cash");
+    System.out.println("3. QR / PayNow");
+    System.out.print("Enter payment option: ");
+    int paymentChoice = scanner.nextInt();
+    scanner.nextLine();
+
+    String paymentMethod = switch (paymentChoice) {
+        case 1 -> "Card";
+        case 2 -> "Cash";
+        case 3 -> "QR / PayNow";
+        default -> "Unknown";
+    };
+
+    System.out.print("Enter payment details (simulated): ");
+    String paymentDetails = scanner.nextLine(); // just simulate entry
+
+    // ✅ Create and prepare the order
+    Order order = new Order(username, selectedItems, selectedStall.getName());
+    order.setPaymentMethod(paymentMethod);
+
+    // ✅ Pass the whole order to the order service
+    int waitTime = orderService.placeOrder(selectedStall.getName(), order);
+    if (username.startsWith("guest") && !isRegisteredDiner(username)) {
+        System.out.println("\n====== Guest Order Receipt ======");
+        System.out.println("Your Guest ID: " + username);
+        System.out.println("Order ID: " + order.getID());
+        System.out.println("Stall: " + selectedStall.getName());
+        System.out.println("Items:");
+        for (Item item : selectedItems) {
+            System.out.println("- " + item.getName() + " ($" + item.getPrice() + ")");
+        }
+        System.out.println("Total: $" + total);
+        System.out.println("Paid via: " + paymentMethod);
+        System.out.println("Estimated Wait Time: " + waitTime + " mins");
+        System.out.println("Timestamp: " + java.time.LocalDateTime.now());
+        System.out.println("Keep your Order ID for pickup.");
+        System.out.println("=================================");
+    }
+
+    if (waitTime >= 0) {
+        System.out.println("Payment successful.");
+        System.out.println("Order placed. Estimated wait time: " + waitTime + " minutes.");
+    } else {
+        System.out.println("Payment failed. Order not placed.");
+    }
+}
 
     private static Item createItem() {
         System.out.print("Enter item name: ");

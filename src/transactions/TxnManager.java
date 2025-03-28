@@ -18,7 +18,8 @@ public class TxnManager implements ITransactionManager {
     @Override
     public boolean verifyTxn(String stallName, Order order) {
         if (getPayment()) {
-            Transaction txn = new Transaction(stallName, order);
+            Transaction txn = new Transaction(stallName, order, order.getPaymentMethod());
+
             txns.add(txn);
             return true;
         }
@@ -42,5 +43,17 @@ public class TxnManager implements ITransactionManager {
     @Override
     public List<Transaction> getAllTransactions() {
         return new ArrayList<>(txns); // Prevent external modification
+    }
+    
+    public void updateStatusForOrder(int orderId, String newStatus) {
+        for (Transaction txn : txns) {
+            if (txn.getOrderId() == orderId) {
+                if (newStatus.equalsIgnoreCase("Completed"))
+                    txn.markCompleted();
+                if (newStatus.equalsIgnoreCase("Cancelled"))
+                    txn.markCancelled();
+                break;
+            }
+        }
     }
 }

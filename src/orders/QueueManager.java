@@ -6,6 +6,7 @@ import java.util.*;
 public class QueueManager {
     private static QueueManager instance;
     private final Map<String, Queue<Order>> stallQueues;
+    private final Map<String, List<Order>> completedOrders = new HashMap<>();
 
     private QueueManager() {
         stallQueues = new HashMap<>();
@@ -74,14 +75,24 @@ public class QueueManager {
     public boolean markOrderCompleted(String stallName, int orderId) {
         Queue<Order> queue = stallQueues.get(stallName);
         if (queue != null) {
-            for (Order order : queue) {
+            Iterator<Order> it = queue.iterator();
+            while (it.hasNext()) {
+                Order order = it.next();
                 if (order.getID() == orderId) {
                     order.markCompleted();
+                    it.remove(); // Remove from queue
+
+                    // Add to completed orders
+                    completedOrders.computeIfAbsent(stallName, k -> new ArrayList<>()).add(order);
                     return true;
                 }
             }
         }
         return false;
+    }
+
+    public List<Order> getCompletedOrdersForStall(String stallName) {
+        return completedOrders.getOrDefault(stallName, Collections.emptyList());
     }
 
 }
