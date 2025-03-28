@@ -1,55 +1,46 @@
 package stalls;
 
 import inventory.Inventory;
-import java.util.Objects;
 
 public class Stall {
-    private String stallId;
-    private String name;
-    private String ownerUsername; // Username of the stall owner
-    private Inventory inventory;
+    private static int stallCounter = 1;
+    private final String stallId;
+    private String name; // 🔧 allow updating
+    private final String owner;
+    private final Inventory inventory;
 
-    public Stall(String stallId, String name, String ownerUsername) {
-        this.stallId = stallId;
+    public Stall(String name, String owner) {
+        this.stallId = generateUniqueStallId(); // Automatically generate ID
         this.name = name;
-        this.ownerUsername = ownerUsername;
+        this.owner = owner;
         this.inventory = new Inventory();
-    }
-    public void viewMenu(){
-        System.out.println("Menu for stall: " + name);
-        inventory.displayItems();
     }
 
     public String getStallId() {
         return stallId;
     }
 
+    public String getId() {
+        return stallId; // for admin UI use
+    }
+
     public String getName() {
         return name;
     }
 
+    public void setName(String newName) {
+        this.name = newName;
+    }
+
     public String getOwnerUsername() {
-        return ownerUsername;
+        return owner;
     }
 
     public Inventory getInventory() {
         return inventory;
     }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Stall stall = (Stall) o;
-        return Objects.equals(stallId, stall.stallId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(stallId);
+    
+    private static String generateUniqueStallId() {
+        return "S" + String.format("%03d", stallCounter++);
     }
 }

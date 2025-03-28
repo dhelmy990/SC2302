@@ -1,33 +1,27 @@
 package transactions;
-import java.time.LocalDateTime;
 
 import orders.Order;
+import java.time.LocalDateTime;
 
 public class Transaction {
-    static int count = 1;
-    private int txnID;
-    private String stallName;
-    private LocalDateTime dateTime;
-    private int totalPrice;
-    private Order order;
+    private static int counter = 1;
+    private final int txnID;
+    private final String stallName;
+    private final LocalDateTime dateTime;
+    private final Order order;
 
-    Transaction(String stallName, Order order){
-        this.txnID = count;
-        this.dateTime = LocalDateTime.now();
+    public Transaction(String stallName, Order order) {
+        this.txnID = counter++;
         this.stallName = stallName;
         this.order = order;
-        count++;
+        this.dateTime = LocalDateTime.now();
     }
 
-    public int getTxnID(){
-        return this.txnID;
+    public int getTxnID() {
+        return txnID;
     }
 
-    public void display(){
-        System.out.println("Store: " + this.stallName);
-        System.out.println("Date and time: " + this.dateTime);
-        System.out.println("Payment made: " + this.totalPrice);
-        System.out.println("Order: " + this.order); // To implement
+    public void display() {
+        System.out.println("Txn ID: " + txnID + ", Stall: " + stallName + ", Time: " + dateTime);
     }
-
 }

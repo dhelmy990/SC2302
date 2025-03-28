@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CanteenManager implements IStallService {
-    private List<Stall> stalls = new ArrayList<>();
+    private final List<Stall> stalls = new ArrayList<>();
 
     public void addStall(Stall stall) {
         stalls.add(stall);
