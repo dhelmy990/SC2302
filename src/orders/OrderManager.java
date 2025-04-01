@@ -1,36 +1,21 @@
 package orders;
 
-import inventory.Item;
 import java.util.ArrayList;
 import java.util.List;
 
 public class OrderManager {
     private final List<Order> orders = new ArrayList<>();
 
-    public void displayOrderHistoryForUser(String userId) {
-        boolean found = false;
+    public List<Order> getOrdersByUser(String userId) {
+        List<Order> result = new ArrayList<>();
         for (Order order : orders) {
             if (order.getUsername().equals(userId)) {
-                found = true;
-                System.out.println("\nOrder ID: " + order.getID() +
-                        " | Stall: " + order.getStallName() +
-                        " | Status: " + order.getStatus() +
-                        " | Total: $" + order.getItems().stream().mapToInt(Item::getPrice).sum());
-
-                System.out.println("Items:");
-                for (Item i : order.getItems()) {
-                    System.out.println("- " + i.getName() + " ($" + i.getPrice() + ")");
-                }
+                result.add(order);
             }
         }
-        if (!found) {
-            System.out.println("No orders found for user: " + userId);
-        }
+        return result;
     }
 
-
-
-  
     public void addOrder(Order order) {
         orders.add(order);
     }

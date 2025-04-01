@@ -12,6 +12,7 @@ import stalls.Stall;
 import transactions.Transaction;
 import transactions.TxnManager;
 import users.*;
+import utils.*;
 
 import java.util.*;
 
@@ -120,7 +121,14 @@ public class Main {
                 case 2 -> {
                     System.out.print("Enter your Guest ID: ");
                     String guestIdInput = scanner.nextLine();
-                    orderManager.displayOrderHistoryForUser(guestIdInput);
+                    List<Order> guestOrders = orderManager.getOrdersByUser(guestIdInput);
+                    if (guestOrders.isEmpty()) {
+                        System.out.println("No orders found for guest ID: " + guestIdInput);
+                    } else {
+                        for (Order order : guestOrders) {
+                            OrderUtils.displayOrderSummary(order, false, true); // guest = same as diner
+                        }
+                    }
                 }
                 case 3 -> {
                     System.out.println("Thank you for visiting!");
@@ -144,7 +152,17 @@ public class Main {
 
             switch (choice) {
                 case 1 -> viewStallsAndOrder(diner.getUsername());
-                case 2 -> orderService.showOrderHistory(diner.getUsername());
+                case 2 -> {
+                    List<Order> history = orderService.getOrderHistory(diner.getUsername());
+                    if (history.isEmpty()) {
+                        System.out.println("No orders found.");
+                    } else {
+                        for (Order order : history) {
+                            OrderUtils.displayOrderSummary(order, true, false); // 👈 isDiner = true
+                        }
+                    }
+                }
+
                 case 3 -> cancelOrder(diner.getUsername());
                 case 4 -> {
                     System.out.println("Logging out...");
@@ -281,14 +299,8 @@ private static void ownerMenu(Owner owner) {
                     for (Order o : orders) {
                         if (o.getStatus().equals("Preparing")) {
                             hasPreparing = true;
-                            System.out.println("\nOrder ID: " + o.getID() +
-                                    " | User: " + o.getUsername() +
-                                    " | Status: " + o.getStatus());
+                            OrderUtils.displayOrderSummary(o, false, false); // 👈 isDiner=false, isGuest=false
 
-                            System.out.println("Items:");
-                            for (Item item : o.getItems()) {
-                                System.out.println("- " + item.getName() + " ($" + item.getPrice() + ")");
-                            }
                         }
                     }
                     if (!hasPreparing) {
@@ -535,19 +547,44 @@ private static void viewStallsAndOrder(String username) {
     List<Item> allItems = selectedStall.getInventory().getAllItems();
     for (int i = 0; i < allItems.size(); i++) {
         Item item = allItems.get(i);
-        System.out.println(
-                (i + 1) + ". " + item.getName() + " ($" + item.getPrice() + ", " + item.getPrepTime() + " mins)");
+        String label = item.getQuantity() == 0 ? "[OUT OF STOCK]" : "(Qty: " + item.getQuantity() + ")";
+        System.out.println((i + 1) + ". " + item.getName() +
+                " ($" + item.getPrice() + ", " + item.getPrepTime() + " mins) " + label);
     }
 
     List<Item> selectedItems = new ArrayList<>();
     while (true) {
+        System.out.println("\n--- Menu ---");
+        for (int i = 0; i < allItems.size(); i++) {
+            Item item = allItems.get(i);
+            String label = item.getQuantity() == 0 ? "[OUT OF STOCK]" : "(Qty: " + item.getQuantity() + ")";
+            System.out.println((i + 1) + ". " + item.getName() +
+                    " ($" + item.getPrice() + ", " + item.getPrepTime() + " mins) " + label);
+        }
+
         System.out.print("Enter item number to add to order (0 to finish): ");
         int itemNum = scanner.nextInt();
         scanner.nextLine();
         if (itemNum == 0)
             break;
-        selectedItems.add(allItems.get(itemNum - 1));
+
+        if (itemNum < 1 || itemNum > allItems.size()) {
+            System.out.println("Invalid selection.");
+            continue;
+        }
+
+        Item chosenItem = allItems.get(itemNum - 1);
+
+        if (chosenItem.getQuantity() == 0) {
+            System.out.println("Sorry, that item is out of stock.");
+            continue;
+        }
+
+        selectedItems.add(chosenItem);
+        chosenItem.reduceQuantity(1); // Update quantity immediately
+        System.out.println(chosenItem.getName() + " added to your order.");
     }
+
     if (selectedItems.isEmpty()) {
         System.out.println("No items selected. Order cancelled.");
         return;
@@ -615,7 +652,9 @@ private static void viewStallsAndOrder(String username) {
         int price = scanner.nextInt();
         System.out.print("Enter preparation time (in minutes): ");
         int prep = scanner.nextInt();
+        System.out.print("Enter Quantity: ");
+        int qty = scanner.nextInt();
         scanner.nextLine();
-        return new Item(name, price, prep);
+        return new Item(name, price, prep,qty);
     }
 }

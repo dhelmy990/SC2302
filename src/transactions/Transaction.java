@@ -3,7 +3,10 @@ package transactions;
 import orders.Order;
 import inventory.Item;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Transaction {
     private static int counter = 1;
@@ -43,9 +46,21 @@ public class Transaction {
         System.out.println("\nTxn ID: " + txnID + ", Stall: " + stallName + ", Diner: " + dinerName);
         System.out.println("Time: " + dateTime + ", Status: " + status);
         System.out.println("Items:");
+
+        Map<String, Integer> grouped = new LinkedHashMap<>();
+        Map<String, Integer> prices = new HashMap<>();
+
         for (Item item : items) {
-            System.out.println("- " + item.getName() + " ($" + item.getPrice() + ")");
+            grouped.put(item.getName(), grouped.getOrDefault(item.getName(), 0) + 1);
+            prices.put(item.getName(), item.getPrice());
         }
+
+        for (String name : grouped.keySet()) {
+            int qty = grouped.get(name);
+            int price = prices.get(name);
+            System.out.println("- " + name + " x" + qty + " ($" + price + ")");
+        }
+
         System.out.println("Total: $" + totalCost + ", Paid via: " + paymentMethod);
     }
 

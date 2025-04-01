@@ -19,16 +19,16 @@ public class SimulatedData {
         // === Owner 1 ===
         Owner owner1 = new Owner("owner1", "owner1@email.com", "1234");
         Stall s1 = new Stall("Chicken Rice", owner1.getUsername());
-        s1.getInventory().addItem(new Item("Chicken Rice", 5, 10));
-        s1.getInventory().addItem(new Item("Fried Chicken", 6, 8));
+        s1.getInventory().addItem(new Item("Chicken Rice", 5, 10,2));
+        s1.getInventory().addItem(new Item("Fried Chicken", 6, 8,100));
         owner1.setManagedStall(s1);
         globalStalls.add(s1);
 
         // === Owner 2 ===
         Owner owner2 = new Owner("owner2", "owner2@email.com", "5678");
         Stall s2 = new Stall("Western Delights", owner2.getUsername());
-        s2.getInventory().addItem(new Item("Spaghetti", 7, 12));
-        s2.getInventory().addItem(new Item("Chicken Chop", 9, 15));
+        s2.getInventory().addItem(new Item("Spaghetti", 7, 12,20));
+        s2.getInventory().addItem(new Item("Chicken Chop", 9, 15,20));
         owner2.setManagedStall(s2);
         globalStalls.add(s2);
 

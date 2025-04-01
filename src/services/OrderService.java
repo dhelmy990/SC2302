@@ -1,5 +1,7 @@
 package services;
 
+import java.util.List;
+
 import orders.Order;
 import orders.OrderManager;
 import orders.QueueManager;
@@ -27,9 +29,10 @@ public class OrderService {
         return estTime;
     }
 
-    public void showOrderHistory(String userId) {
-        orderManager.displayOrderHistoryForUser(userId);
-    }
+public List<Order> getOrderHistory(String userId) {
+    return orderManager.getOrdersByUser(userId);
+}
+
 
     public int calculateTotalCost(java.util.List<inventory.Item> items) {
         return items.stream().mapToInt(inventory.Item::getPrice).sum();
