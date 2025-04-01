@@ -3,6 +3,7 @@ package utils;
 
 import inventory.Item;
 import orders.Order;
+import java.time.format.DateTimeFormatter;
 
 import java.util.*;
 
@@ -22,7 +23,6 @@ public class OrderUtils {
         }
     }
 
-    // 🎯 Unified display logic for different user roles
     public static void displayOrderSummary(Order order, boolean isDiner, boolean isGuest) {
         String prefix = "\nOrder ID: " + order.getID();
         if (isDiner || isGuest) {
@@ -33,6 +33,11 @@ public class OrderUtils {
 
         int total = order.getItems().stream().mapToInt(Item::getPrice).sum();
         System.out.println(prefix + " | Status: " + order.getStatus() + " | Total: $" + total);
+
+        System.out.println("Order Time: " + DateUtils.format(order.getOrderTime()));
+        System.out.println(
+                "Est. Collection Time: " + order.getOrderTime().plusMinutes(order.getWaitingTime()).format(formatter));
+
         System.out.println("Items:");
         displayGroupedItems(order.getItems());
     }

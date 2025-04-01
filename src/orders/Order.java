@@ -2,6 +2,7 @@ package orders;
 
 import inventory.Item;
 import java.util.List;
+import java.time.LocalDateTime;
 
 public class Order {
     private static int counter = 1;
@@ -11,6 +12,7 @@ public class Order {
     private String status = "Preparing";
     private String paymentMethod;
     private final String stallName;
+    private final LocalDateTime orderTime;
 
     public String getPaymentMethod() {
         return paymentMethod;
@@ -29,6 +31,7 @@ public class Order {
         this.username = username;
         this.items = items;
         this.stallName = stallName;
+        this.orderTime = LocalDateTime.now();
     }
 
     public int getID() {
@@ -55,8 +58,12 @@ public class Order {
         this.status = "Cancelled";
     }
 
-    // ✅ Add this
+
     public List<Item> getItems() {
         return items;
+    }
+    
+    public LocalDateTime getOrderTime() {
+        return orderTime;
     }
 }

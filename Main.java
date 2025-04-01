@@ -612,37 +612,27 @@ private static void viewStallsAndOrder(String username) {
     };
 
     System.out.print("Enter payment details (simulated): ");
-    String paymentDetails = scanner.nextLine(); // just simulate entry
+    String paymentDetails = scanner.nextLine(); 
 
-    // ✅ Create and prepare the order
+   
     Order order = new Order(username, selectedItems, selectedStall.getName());
     order.setPaymentMethod(paymentMethod);
 
-    // ✅ Pass the whole order to the order service
+  
     int waitTime = orderService.placeOrder(selectedStall.getName(), order);
-    if (username.startsWith("guest") && !isRegisteredDiner(username)) {
-        System.out.println("\n====== Guest Order Receipt ======");
-        System.out.println("Your Guest ID: " + username);
-        System.out.println("Order ID: " + order.getID());
-        System.out.println("Stall: " + selectedStall.getName());
-        System.out.println("Items:");
-        for (Item item : selectedItems) {
-            System.out.println("- " + item.getName() + " ($" + item.getPrice() + ")");
-        }
-        System.out.println("Total: $" + total);
-        System.out.println("Paid via: " + paymentMethod);
-        System.out.println("Estimated Wait Time: " + waitTime + " mins");
-        System.out.println("Timestamp: " + java.time.LocalDateTime.now());
-        System.out.println("Keep your Order ID for pickup.");
-        System.out.println("=================================");
-    }
 
     if (waitTime >= 0) {
         System.out.println("Payment successful.");
         System.out.println("Order placed. Estimated wait time: " + waitTime + " minutes.");
+
+        if (username.startsWith("guest") && !isRegisteredDiner(username)) {
+            ReceiptUtils.printGuestReceipt(order, total, paymentMethod);
+        }
+
     } else {
         System.out.println("Payment failed. Order not placed.");
     }
+
 }
 
     private static Item createItem() {
