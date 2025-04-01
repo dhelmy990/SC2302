@@ -36,7 +36,7 @@ public class OrderUtils {
 
         System.out.println("Order Time: " + DateUtils.format(order.getOrderTime()));
         System.out.println(
-                "Est. Collection Time: " + order.getOrderTime().plusMinutes(order.getWaitingTime()).format(formatter));
+                "Est. Collection Time: " + DateUtils.format(order.getOrderTime().plusMinutes(order.getWaitingTime())));
 
         System.out.println("Items:");
         displayGroupedItems(order.getItems());

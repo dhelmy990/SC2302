@@ -338,7 +338,7 @@ private static void showTransactionsForStall(String stallName) {
     boolean found = false;
     for (Transaction txn : transactions) {
         if (txn.getStallName().equals(stallName)) {
-            txn.display();
+            TransactionUtils.display(txn); 
             found = true;
         }
     }
@@ -346,6 +346,7 @@ private static void showTransactionsForStall(String stallName) {
         System.out.println("No transactions found for your stall.");
     }
 }
+
 private static void adminMenu(Admin admin) {
     while (true) {
         System.out.println("\n--- Admin Menu ---");
@@ -372,7 +373,7 @@ private static void adminMenu(Admin admin) {
             case 6 -> editStallDetails();
             case 7 -> removeUser();
             case 8 -> removeStall();
-            case 9 -> txnManager.getAllTransactions().forEach(Transaction::display);
+            case 9 -> txnManager.getAllTransactions().forEach(TransactionUtils::display);
             case 10 -> {
                 System.out.println("Logging out...");
                 return;
