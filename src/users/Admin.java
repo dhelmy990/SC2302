@@ -2,6 +2,7 @@ package users;
 import java.util.*;
 
 import transactions.*;
+import stall.*;
 
 public class Admin extends User{
     public Admin(String username, String email, String password) {

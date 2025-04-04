@@ -2,6 +2,7 @@ package users;
 import java.util.*;
 
 import orders.*;
+import inventory.*;
 
 public class Diner extends User{
     public Diner(String username, String email, String password) {

@@ -1,6 +1,8 @@
 package stall;
 import java.util.*;
 
+import users.*;
+
 public class Stall {
     private String stallName;
     private Owner owner;

@@ -2,6 +2,8 @@ package users;
 import java.util.*;
 
 import orders.*;
+import stall.*;
+import inventory.*;
 
 public class Owner extends User{
     private Stall managedStall;
@@ -12,7 +14,7 @@ public class Owner extends User{
         super(username, email, password);
         this.managedStall = stall;
         this.ownerId = ownerId;
-        owners.put(ownerId,this) // Add the owner to the static map
+        owners.put(ownerId,this); // Add the owner to the static map
     }
 
     @Override
@@ -25,7 +27,7 @@ public class Owner extends User{
     }
 
     public int getOwnerId(){
-        return this.owenerId;
+        return this.ownerId;
     }
 
     // Stall knows its own Inventory. Inventory can display can update items
