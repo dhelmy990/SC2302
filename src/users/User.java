@@ -30,5 +30,9 @@ public abstract class User {
         this.email = email;
         this.password = password;
     }
+    public void displayUserInfo() {
+        System.out.println("Username: " + username);
+        System.out.println("Email: " + email);
+    }
 
 }

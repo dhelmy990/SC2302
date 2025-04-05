@@ -57,11 +57,21 @@ public class Order {
     public void markCancelled() {
         this.status = "Cancelled";
     }
-
-
+    public void markCooking() {
+        this.status = "Cooking";
+    }
     public List<Item> getItems() {
         return items;
     }
+
+    public boolean isCooking() {
+        return "Cooking".equals(status);
+    }
+    
+    public boolean isPreparing() {
+        return "Preparing".equals(status);
+    }
+    
     
     public LocalDateTime getOrderTime() {
         return orderTime;

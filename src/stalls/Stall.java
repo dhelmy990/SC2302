@@ -5,8 +5,8 @@ import inventory.Inventory;
 public class Stall {
     private static int stallCounter = 1;
     private final String stallId;
-    private String name; // 🔧 allow updating
-    private final String owner;
+    private String name; 
+    private String owner;
     private final Inventory inventory;
 
     public Stall(String name, String owner) {
@@ -33,8 +33,13 @@ public class Stall {
     }
 
     public String getOwnerUsername() {
-        return owner;
+        return owner != null ? owner : "[Unassigned]";
     }
+
+    public void setOwnerUsername(String newOwner) {
+        this.owner = newOwner;
+    }
+
 
     public Inventory getInventory() {
         return inventory;

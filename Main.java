@@ -2,9 +2,8 @@ import inventory.Item;
 import orders.Order;
 import orders.OrderManager;
 import orders.QueueManager;
-import payments.CardPaymentProcessor;
-import payments.IPaymentProcessor;
-import services.OrderService;
+import payments.*;
+import services.*;
 import simulated.SimulatedData;
 import stalls.CanteenManager;
 import stalls.IStallService;
@@ -21,10 +20,12 @@ public class Main {
     private static final IStallService canteenManager = new CanteenManager();
     private static final List<User> users = SimulatedData.getSampleUsers(canteenManager);
     private static final List<Stall> stalls = SimulatedData.getSampleStalls();
-    private static final IPaymentProcessor paymentProcessor = new CardPaymentProcessor();
-    private static final TxnManager txnManager = new TxnManager(paymentProcessor);
+    private static final TxnManager txnManager = new TxnManager();
     private static final OrderManager orderManager = new OrderManager();
-    private static final OrderService orderService = new OrderService(orderManager, txnManager);
+    private static final OrderService orderService = new OrderService(orderManager, txnManager, canteenManager);
+    private static final AdminService adminService = new AdminService(users, stalls);
+
+
    
 
 
@@ -77,31 +78,35 @@ public class Main {
         String role = scanner.nextLine();
         System.out.print("Enter username: ");
         String username = scanner.nextLine();
-
+        System.out.print("Enter email: ");
+        String email = scanner.nextLine();
+    
         for (User u : users) {
-            if (u.getUsername().equals(username)) {
+            if (u.getUsername().equalsIgnoreCase(username)) {
                 System.out.println("Username already exists.");
                 return;
             }
+            if (u.getEmail().equalsIgnoreCase(email)) {
+                System.out.println("Email already in use.");
+                return;
+            }
         }
-
-        System.out.print("Enter email: ");
-        String email = scanner.nextLine();
+    
         System.out.print("Enter password: ");
         String password = scanner.nextLine();
-
+    
         switch (role.toLowerCase()) {
-            case "diner" -> users.add(new Diner(username, email, password,canteenManager));
+            case "diner" -> users.add(new Diner(username, email, password, canteenManager));
             case "owner" -> users.add(new Owner(username, email, password));
-
             default -> {
                 System.out.println("Invalid role.");
                 return;
             }
         }
+    
         System.out.println("Account created successfully. You may now log in.");
     }
-
+    
     private static void guestFlow() {
         String guestId = "guest_" + UUID.randomUUID().toString();
         System.out.println("\nContinuing as Guest Diner...");
@@ -145,7 +150,8 @@ public class Main {
             System.out.println("1. Order Food");
             System.out.println("2. View Order History");
             System.out.println("3. Cancel an Order"); 
-            System.out.println("4. Logout");
+            System.out.println("4. View/Update Account Details");
+            System.out.println("5. Logout");
             System.out.print("Choose an option: ");
             int choice = scanner.nextInt();
             scanner.nextLine();
@@ -163,8 +169,15 @@ public class Main {
                     }
                 }
 
-                case 3 -> cancelOrder(diner.getUsername());
-                case 4 -> {
+                case 3 -> {
+                    if (!orderService.handleOrderCancellationFlow(diner.getUsername(), scanner)) {
+                        System.out.println("Order not found or cannot be cancelled.");
+                    }
+                }
+                case 4 -> UserUtils.handleAccountUpdate(diner, scanner);
+
+                
+                case 5 -> {
                     System.out.println("Logging out...");
                     return;
                 }
@@ -173,74 +186,19 @@ public class Main {
         }
     }
 
-    private static void cancelOrder(String username) {
-        List<Order> orders = QueueManager.getInstance().getOrdersByUser(username);
 
-        List<Order> cancellable = new ArrayList<>();
-        for (Order o : orders) {
-            if (o.getStatus().equals("Preparing")) {
-                cancellable.add(o);
-            }
-        }
-
-        if (cancellable.isEmpty()) {
-            System.out.println("No cancellable orders found.");
-            return;
-        }
-
-        System.out.println("Your current preparing orders:");
-        for (Order o : cancellable) {
-            System.out.println("Order ID: " + o.getID() + " | Items: " +
-                    o.getItems().stream().map(Item::getName).toList());
-        }
-
-        System.out.print("Enter Order ID to cancel: ");
-        int id = scanner.nextInt();
-        scanner.nextLine();
-
-        boolean cancelled = false;
-        Queue<Order> queue = QueueManager.getInstance().getAllQueues().getOrDefault(
-                getStallNameForOrder(id), new LinkedList<>());
-
-        Iterator<Order> iterator = queue.iterator();
-        while (iterator.hasNext()) {
-            Order o = iterator.next();
-            if (o.getID() == id && o.getUsername().equals(username) && o.getStatus().equals("Preparing")) {
-                o.markCancelled();
-                txnManager.updateStatusForOrder(o.getID(), "Cancelled");
-                iterator.remove();
-                System.out.println("Order cancelled successfully.");
-                cancelled = true;
-                break;
-            }
-        }
-
-        if (!cancelled) {
-            System.out.println("Order not found or cannot be cancelled.");
-        }
-    }
-
-    private static String getStallNameForOrder(int orderId) {
-        for (Map.Entry<String, Queue<Order>> entry : QueueManager.getInstance().getAllQueues().entrySet()) {
-            for (Order o : entry.getValue()) {
-                if (o.getID() == orderId) {
-                    return entry.getKey();
-                }
-            }
-        }
-        return "";
-    }
 
 private static void ownerMenu(Owner owner) {
     while (true) {
-        System.out.println("\n--- Owner Menu ---");
         System.out.println("1. View Inventory");
         System.out.println("2. Add Item to Inventory");
         System.out.println("3. Update Item in Inventory");
-        System.out.println("4. View Current Orders");
-        System.out.println("5. Mark Order As Completed");
-        System.out.println("6. View Transaction History");
-        System.out.println("7. Logout");
+        System.out.println("4. Delete Item from Inventory"); 
+        System.out.println("5. View Current Orders");
+        System.out.println("6. Mark Order As Completed");
+        System.out.println("7. View Transaction History");
+        System.out.println("8. View/Update Account Details");
+        System.out.println("9. Logout");
 
         System.out.print("Choose an option: ");
         int choice = scanner.nextInt();
@@ -253,77 +211,90 @@ private static void ownerMenu(Owner owner) {
         }
 
         switch (choice) {
-            case 1 -> {
-                List<Item> items = stall.getInventory().getAllItems();
-                if (items.isEmpty()) {
-                    System.out.println("Inventory is empty.");
-                } else {
-                    for (Item i : items) {
-                        System.out.println(i.getName() + " - $" + i.getPrice() + " - " + i.getPrepTime() + " mins");
-                    }
-                }
-            }
+            case 1 -> ItemUtils.displayInventory(stall.getInventory().getAllItems());
 
             case 2 -> {
-                Item newItem = createItem();
+                Item newItem = ItemInputUtils.createItemFromInput(scanner);
                 stall.getInventory().addItem(newItem);
                 System.out.println("Item added.");
             }
 
-            case 3 -> {
-                System.out.print("Enter item name to update: ");
-                String name = scanner.nextLine();
-                List<Item> items = stall.getInventory().getAllItems();
-                boolean found = false;
-                for (int i = 0; i < items.size(); i++) {
-                    if (items.get(i).getName().equalsIgnoreCase(name)) {
-                        items.remove(i);
-                        Item updatedItem = createItem();
-                        stall.getInventory().addItem(updatedItem);
-                        System.out.println("Item updated.");
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
-                    System.out.println("Item not found.");
-                }
-            }
+            case 3 -> InventoryUtils.updateItemFlow(stall.getInventory(), scanner);
 
-            case 4 -> {
+            case 4 -> InventoryUtils.deleteItemFlow(stall.getInventory(), scanner); 
+            case 5 -> {
                 List<Order> orders = QueueManager.getInstance().getAllOrdersForStall(stall.getName());
                 if (orders.isEmpty()) {
                     System.out.println("No current orders.");
                 } else {
-                    boolean hasPreparing = false;
+                    boolean hasActive = false;
                     for (Order o : orders) {
-                        if (o.getStatus().equals("Preparing")) {
-                            hasPreparing = true;
-                            OrderUtils.displayOrderSummary(o, false, false); // 👈 isDiner=false, isGuest=false
-
+                        if (o.isPreparing() || o.isCooking()) {
+                            hasActive = true;
+                            OrderUtils.displayOrderSummary(o, false, false);
                         }
                     }
-                    if (!hasPreparing) {
-                        System.out.println("No preparing orders.");
+                    if (!hasActive) {
+                        System.out.println("No preparing or cooking orders.");
                     }
                 }
             }
+            
 
-            case 5 -> {
-                System.out.print("Enter Order ID to mark as completed: ");
-                int orderId = scanner.nextInt();
-                scanner.nextLine();
-                boolean updated = QueueManager.getInstance().markOrderCompleted(stall.getName(), orderId);
-                if (updated) {
-                    txnManager.updateStatusForOrder(orderId, "Completed");
-                    System.out.println("Order marked as completed.");
-                } else {
-                    System.out.println("Order ID not found.");
+            case 6 -> {
+                List<Order> orders = QueueManager.getInstance().getAllOrdersForStall(stall.getName());
+                List<Order> cookingOrders = new ArrayList<>();
+            
+                for (Order o : orders) {
+                    if (o.isCooking()) {
+                        cookingOrders.add(o);
+                    }
+                }
+            
+                if (cookingOrders.isEmpty()) {
+                    System.out.println("No Cooking orders to mark as completed.");
+                    break;
+                }
+            
+                System.out.println("\n--- Cooking Orders ---");
+                for (Order o : cookingOrders) {
+                    OrderUtils.displayOrderSummary(o, false, false); 
+                }
+            
+                while (true) {
+                    System.out.print("Enter Order ID to mark as completed or type exit to quit: ");
+                    String input = scanner.nextLine();
+                    if (input.equalsIgnoreCase("exit")) {
+                        System.out.println("Marking order aborted.");
+                        break;
+                    }
+                    try {
+                        int orderId = Integer.parseInt(input);
+            
+                        boolean found = cookingOrders.stream().anyMatch(o -> o.getID() == orderId);
+                        if (!found) {
+                            System.out.println("Invalid Order ID. Please choose from the list above.");
+                            continue;
+                        }
+            
+                        boolean updated = QueueManager.getInstance().markOrderCompleted(stall.getName(), orderId);
+                        if (updated) {
+                            txnManager.updateStatusForOrder(orderId, "Completed");
+                            System.out.println("Order marked as completed.");
+                        } else {
+                            System.out.println("Order could not be updated.");
+                        }
+                        break; 
+                    } catch (NumberFormatException e) {
+                        System.out.println("Invalid input. Please enter a valid number.");
+                    }
                 }
             }
+            
 
-            case 6 -> showTransactionsForStall(stall.getName());
-            case 7 -> {
+            case 7 -> showTransactionsForStall(stall.getName());
+            case 8 -> UserUtils.handleAccountUpdate(owner, scanner);
+            case 9 -> {
                 System.out.println("Logging out...");
                 return;
             }
@@ -355,175 +326,37 @@ private static void adminMenu(Admin admin) {
         System.out.println("3. View All Users");
         System.out.println("4. View All Stalls");
         System.out.println("5. Edit User Details");
-        System.out.println("6. Edit Stall Details");
-        System.out.println("7. Remove User");
-        System.out.println("8. Remove Stall");
-        System.out.println("9. View All Transactions");
-        System.out.println("10. Logout");
+        System.out.println("6. Edit Stall Name");
+        System.out.println("7. Reassign Stall to New Owner"); 
+        System.out.println("8. Remove User");
+        System.out.println("9. Remove Stall");
+        System.out.println("10. View All Transactions");
+        System.out.println("11. View/Update Account Details");
+        System.out.println("12. Logout");
         System.out.print("Choose an option: ");
         int choice = scanner.nextInt();
         scanner.nextLine();
 
         switch (choice) {
-            case 1 -> addNewUser();
-            case 2 -> addNewStall();
-            case 3 -> viewAllUsers();
-            case 4 -> viewAllStalls();
-            case 5 -> editUserDetails();
-            case 6 -> editStallDetails();
-            case 7 -> removeUser();
-            case 8 -> removeStall();
-            case 9 -> txnManager.getAllTransactions().forEach(TransactionUtils::display);
-            case 10 -> {
+            case 1 -> adminService.addNewUser(scanner, canteenManager);
+            case 2 -> adminService.addNewStall(scanner);
+            case 3 -> adminService.viewAllUsers();
+            case 4 -> adminService.viewAllStalls();
+            case 5 -> adminService.editUserDetails(scanner);
+            case 6 -> adminService.editStallDetails(scanner);
+            case 7 -> adminService.reassignStallToNewOwner(scanner, users);
+            case 8 -> adminService.removeUser(scanner);
+            case 9 -> adminService.removeStall(scanner);
+            case 10 -> txnManager.displayAllTransactions();
+            case 11 -> UserUtils.handleAccountUpdate(admin, scanner);
+            case 12 -> {
                 System.out.println("Logging out...");
                 return;
             }
-            default -> System.out.println("Invalid choice.");
         }
     }
 }
 
-private static void viewAllUsers() {
-    if (users.isEmpty()) {
-        System.out.println("No users found.");
-    } else {
-        users.forEach(u -> System.out.println(u.getRole() + ": " + u.getUsername() + " | Email: " + u.getEmail()));
-    }
-}
-
-private static void viewAllStalls() {
-    if (stalls.isEmpty()) {
-        System.out.println("No stalls available.");
-    } else {
-        stalls.forEach(s -> System.out
-                .println("ID: " + s.getId() + " | Name: " + s.getName() + " | Owner: " + s.getOwnerUsername()));
-    }
-}
-
-private static void editStallDetails() {
-    System.out.print("Enter Stall ID to edit: ");
-    String stallId = scanner.nextLine();
-
-    for (Stall stall : stalls) {
-        if (stall.getStallId().equalsIgnoreCase(stallId)) {
-            System.out.print("Enter new stall name: ");
-            String newName = scanner.nextLine();
-            stall.setName(newName);
-            System.out.println("Stall name updated.");
-            return;
-        }
-    }
-    System.out.println("Stall not found.");
-}
-
-private static void removeUser() {
-    System.out.print("Enter username to remove: ");
-    String username = scanner.nextLine();
-
-    Iterator<User> iterator = users.iterator();
-    while (iterator.hasNext()) {
-        User u = iterator.next();
-        if (u.getUsername().equalsIgnoreCase(username)) {
-            iterator.remove();
-            System.out.println("User removed.");
-            return;
-        }
-    }
-    System.out.println("User not found.");
-}
-
-private static void removeStall() {
-    System.out.print("Enter Stall ID to remove: ");
-    String stallId = scanner.nextLine();
-
-    Iterator<Stall> iterator = stalls.iterator();
-    while (iterator.hasNext()) {
-        Stall s = iterator.next();
-        if (s.getId().equalsIgnoreCase(stallId)) {
-            iterator.remove();
-            System.out.println("Stall removed.");
-            return;
-        }
-    }
-    System.out.println("Stall not found.");
-}
-
-private static void addNewUser() {
-    System.out.print("Enter username: ");
-    String username = scanner.nextLine();
-    System.out.print("Enter email: ");
-    String email = scanner.nextLine();
-    System.out.print("Enter password: ");
-    String password = scanner.nextLine();
-    System.out.print("Enter role (diner / owner / admin): ");
-    String role = scanner.nextLine().toLowerCase();
-
-    // Check for duplicate username or email
-    for (User user : users) {
-        if (user.getUsername().equals(username) || user.getEmail().equals(email)) {
-            System.out.println("Username or email already exists.");
-            return;
-        }
-    }
-
-    switch (role) {
-        case "diner" -> users.add(new Diner(username, email, password, canteenManager));
-        case "owner" -> users.add(new Owner(username, email, password)); // Stall assigned later
-        case "admin" -> users.add(new Admin(username, email, password));
-        default -> {
-            System.out.println("Invalid role.");
-            return;
-        }
-    }
-
-    System.out.println("User added successfully.");
-}
-
-private static void addNewStall() {
-    System.out.print("Enter stall name: ");
-    String stallName = scanner.nextLine();
-    System.out.print("Enter owner username: ");
-    String ownerUsername = scanner.nextLine();
-
-    // Validate that the owner exists
-    Owner matchedOwner = null;
-    for (User u : users) {
-        if (u.getUsername().equals(ownerUsername) && u instanceof Owner owner) {
-            matchedOwner = owner;
-            break;
-        }
-    }
-
-    if (matchedOwner == null) {
-        System.out.println("Owner not found.");
-        return;
-    }
-
-    // Create and assign the new stall with an auto-generated ID
-    Stall stall = new Stall(stallName, ownerUsername);
-    matchedOwner.setManagedStall(stall);
-    stalls.add(stall);
-    System.out.println("Stall added and assigned to owner.");
-}
-
-private static void editUserDetails() {
-    System.out.print("Enter username of user to edit: ");
-    String targetUsername = scanner.nextLine();
-
-    for (User user : users) {
-        if (user.getUsername().equals(targetUsername)) {
-            System.out.print("Enter new email: ");
-            String newEmail = scanner.nextLine();
-            System.out.print("Enter new password: ");
-            String newPassword = scanner.nextLine();
-
-            user.updateUserInfo(user.getUsername(), newEmail, newPassword);
-            System.out.println("User details updated.");
-            return;
-        }
-    }
-    System.out.println("User not found.");
-}
 
 private static boolean isRegisteredDiner(String username) {
     for (User user : users) {
@@ -539,50 +372,31 @@ private static void viewStallsAndOrder(String username) {
     for (int i = 0; i < stalls.size(); i++) {
         System.out.println((i + 1) + ". " + stalls.get(i).getName());
     }
-    System.out.print("Select stall number: ");
-    int choice = scanner.nextInt();
-    scanner.nextLine();
 
-    Stall selectedStall = stalls.get(choice - 1);
-    System.out.println("\nMenu:");
+    int stallChoice = InputUtils.getValidIntegerInput(scanner, "Select stall number: ", 1, stalls.size());
+    Stall selectedStall = stalls.get(stallChoice - 1);
     List<Item> allItems = selectedStall.getInventory().getAllItems();
-    for (int i = 0; i < allItems.size(); i++) {
-        Item item = allItems.get(i);
-        String label = item.getQuantity() == 0 ? "[OUT OF STOCK]" : "(Qty: " + item.getQuantity() + ")";
-        System.out.println((i + 1) + ". " + item.getName() +
-                " ($" + item.getPrice() + ", " + item.getPrepTime() + " mins) " + label);
-    }
 
     List<Item> selectedItems = new ArrayList<>();
+    Map<Item, Integer> itemCounts = new HashMap<>();
+
     while (true) {
         System.out.println("\n--- Menu ---");
-        for (int i = 0; i < allItems.size(); i++) {
-            Item item = allItems.get(i);
-            String label = item.getQuantity() == 0 ? "[OUT OF STOCK]" : "(Qty: " + item.getQuantity() + ")";
-            System.out.println((i + 1) + ". " + item.getName() +
-                    " ($" + item.getPrice() + ", " + item.getPrepTime() + " mins) " + label);
-        }
+        ItemUtils.displayMenu(allItems);
 
-        System.out.print("Enter item number to add to order (0 to finish): ");
-        int itemNum = scanner.nextInt();
-        scanner.nextLine();
-        if (itemNum == 0)
-            break;
-
-        if (itemNum < 1 || itemNum > allItems.size()) {
-            System.out.println("Invalid selection.");
-            continue;
-        }
+        int itemNum = InputUtils.getValidIntegerInput(scanner, "Enter item number to add to order (0 to finish): ", 0, allItems.size());
+        if (itemNum == 0) break;
 
         Item chosenItem = allItems.get(itemNum - 1);
 
-        if (chosenItem.getQuantity() == 0) {
+        if (chosenItem.getQuantity() <= 0) {
             System.out.println("Sorry, that item is out of stock.");
             continue;
         }
 
+        chosenItem.reduceQuantity(1); // Temporarily reserve stock
         selectedItems.add(chosenItem);
-        chosenItem.reduceQuantity(1); // Update quantity immediately
+        itemCounts.put(chosenItem, itemCounts.getOrDefault(chosenItem, 0) + 1);
         System.out.println(chosenItem.getName() + " added to your order.");
     }
 
@@ -594,58 +408,65 @@ private static void viewStallsAndOrder(String username) {
     int total = orderService.calculateTotalCost(selectedItems);
 
     System.out.println("\nOrder Summary:");
-    selectedItems.forEach(i -> System.out.println("- " + i.getName() + " ($" + i.getPrice() + ")"));
+    itemCounts.forEach((item, qty) ->
+        System.out.println("- " + item.getName() + " x" + qty + " ($" + item.getPrice() + " each)")
+    );
     System.out.println("Total Cost: $" + total);
 
-    System.out.println("Choose Payment Method:");
-    System.out.println("1. Card");
-    System.out.println("2. Cash");
-    System.out.println("3. QR / PayNow");
-    System.out.print("Enter payment option: ");
-    int paymentChoice = scanner.nextInt();
-    scanner.nextLine();
+    int paymentChoice = InputUtils.getValidIntegerInput(scanner, """
+        Choose Payment Method:
+        1. Card
+        2. Cash
+        3. QR / PayNow
+        Enter payment option: """, 1, 3);
 
-    String paymentMethod = switch (paymentChoice) {
-        case 1 -> "Card";
-        case 2 -> "Cash";
-        case 3 -> "QR / PayNow";
-        default -> "Unknown";
-    };
+    IPaymentProcessor paymentProcessor;
+    String paymentMethod;
+    switch (paymentChoice) {
+        case 1 -> {
+            paymentProcessor = new CardPaymentProcessor(scanner);
+            paymentMethod = "Card";
+        }
+        case 2 -> {
+            paymentProcessor = new CashPaymentProcessor(scanner, total);
+            paymentMethod = "Cash";
+        }
+        case 3 -> {
+            paymentProcessor = new QRPaymentProcessor(scanner);
+            paymentMethod = "QR / PayNow";
+        }
+        default -> throw new IllegalStateException("Unexpected value: " + paymentChoice);
+    }
 
-    System.out.print("Enter payment details (simulated): ");
-    String paymentDetails = scanner.nextLine(); 
+    PaymentService paymentService = new PaymentService(paymentProcessor);
+    if (!paymentService.makePayment()) {
+        System.out.println("Payment failed. Order not placed.");
+        restoreItemQuantities(itemCounts); // Restore reserved quantities
+        return;
+    }
 
-   
     Order order = new Order(username, selectedItems, selectedStall.getName());
     order.setPaymentMethod(paymentMethod);
 
-  
+    txnManager.recordTransaction(selectedStall.getName(), order);
     int waitTime = orderService.placeOrder(selectedStall.getName(), order);
 
     if (waitTime >= 0) {
         System.out.println("Payment successful.");
-        System.out.println("Order placed. Estimated wait time: " + waitTime + " minutes.");
-
-        if (username.startsWith("guest") && !isRegisteredDiner(username)) {
-            ReceiptUtils.printGuestReceipt(order, total, paymentMethod);
-        }
-
+        boolean isGuest = username.startsWith("guest") && !isRegisteredDiner(username);
+        ReceiptUtils.printReceipt(order, total, paymentMethod, isGuest);
     } else {
-        System.out.println("Payment failed. Order not placed.");
+        System.out.println("Order failed during processing.");
+        restoreItemQuantities(itemCounts); 
     }
-
 }
 
-    private static Item createItem() {
-        System.out.print("Enter item name: ");
-        String name = scanner.nextLine();
-        System.out.print("Enter price: ");
-        int price = scanner.nextInt();
-        System.out.print("Enter preparation time (in minutes): ");
-        int prep = scanner.nextInt();
-        System.out.print("Enter Quantity: ");
-        int qty = scanner.nextInt();
-        scanner.nextLine();
-        return new Item(name, price, prep,qty);
+
+
+private static void restoreItemQuantities(Map<Item, Integer> itemCounts) {
+    for (Map.Entry<Item, Integer> entry : itemCounts.entrySet()) {
+        entry.getKey().addQuantity(entry.getValue());
     }
+}
+
 }

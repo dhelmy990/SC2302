@@ -1,33 +1,17 @@
 package transactions;
 
-import orders.Order;
-import payments.IPaymentProcessor;
-
 import java.util.ArrayList;
 import java.util.List;
 
+import orders.Order;
+import utils.TransactionUtils;
+
 public class TxnManager implements ITransactionManager {
-    private final List<Transaction> txns;
-    private final IPaymentProcessor paymentProcessor;
+    private final List<Transaction> txns = new ArrayList<>();
 
-    public TxnManager(IPaymentProcessor paymentProcessor) {
-        this.paymentProcessor = paymentProcessor;
-        this.txns = new ArrayList<>();
-    }
-
-    @Override
-    public boolean verifyTxn(String stallName, Order order) {
-        if (getPayment()) {
-            Transaction txn = new Transaction(stallName, order, order.getPaymentMethod());
-
-            txns.add(txn);
-            return true;
-        }
-        return false;
-    }
-
-    private boolean getPayment() {
-        return paymentProcessor.processPayment();
+    public void recordTransaction(String stallName, Order order) {
+        Transaction txn = new Transaction(stallName, order, order.getPaymentMethod());
+        txns.add(txn);
     }
 
     @Override
@@ -42,16 +26,25 @@ public class TxnManager implements ITransactionManager {
 
     @Override
     public List<Transaction> getAllTransactions() {
-        return new ArrayList<>(txns); // Prevent external modification
+        return new ArrayList<>(txns); // prevent external mutation
     }
-    
+
+    public void displayAllTransactions() {
+        if (txns.isEmpty()) {
+            System.out.println("No transactions available.");
+        } else {
+            txns.forEach(TransactionUtils::display);
+        }
+    }
+
     public void updateStatusForOrder(int orderId, String newStatus) {
         for (Transaction txn : txns) {
             if (txn.getOrderId() == orderId) {
-                if (newStatus.equalsIgnoreCase("Completed"))
+                if ("Completed".equalsIgnoreCase(newStatus)) {
                     txn.markCompleted();
-                if (newStatus.equalsIgnoreCase("Cancelled"))
+                } else if ("Cancelled".equalsIgnoreCase(newStatus)) {
                     txn.markCancelled();
+                }
                 break;
             }
         }

@@ -22,6 +22,10 @@ public class QueueManager {
     public int enqueueOrder(String stallName, Order order) {
         Queue<Order> queue = stallQueues.computeIfAbsent(stallName, k -> new LinkedList<>());
         queue.offer(order);
+        Order head = queue.peek();
+    if (head != null && head.getStatus().equals("Preparing")) {
+        head.markCooking();
+    }
         return estimateWaitTime(queue);
     }
 
@@ -71,6 +75,16 @@ public class QueueManager {
         }
         return result;
     }
+    public static String getStallNameForOrder(int orderId) {
+        for (Map.Entry<String, Queue<Order>> entry : QueueManager.getInstance().getAllQueues().entrySet()) {
+            for (Order o : entry.getValue()) {
+                if (o.getID() == orderId) {
+                    return entry.getKey();
+                }
+            }
+        }
+        return "";
+    }
 
     public boolean markOrderCompleted(String stallName, int orderId) {
         Queue<Order> queue = stallQueues.get(stallName);
@@ -80,19 +94,31 @@ public class QueueManager {
                 Order order = it.next();
                 if (order.getID() == orderId) {
                     order.markCompleted();
-                    it.remove(); // Remove from queue
-
-                    // Add to completed orders
+                    it.remove();
                     completedOrders.computeIfAbsent(stallName, k -> new ArrayList<>()).add(order);
+                    
+                    updateCookingStatusForStall(stallName);
                     return true;
                 }
             }
         }
         return false;
     }
+    
 
     public List<Order> getCompletedOrdersForStall(String stallName) {
         return completedOrders.getOrDefault(stallName, Collections.emptyList());
     }
+
+    public void updateCookingStatusForStall(String stallName) {
+        Queue<Order> queue = stallQueues.get(stallName);
+        if (queue != null && !queue.isEmpty()) {
+            Order first = queue.peek();
+            if (first.isPreparing()) {
+                first.markCooking(); // only promote Preparing -> Cooking
+            }
+        }
+    }
+    
 
 }

@@ -1,10 +1,12 @@
 package transactions;
 
-import orders.Order;
 import java.util.List;
 
+import orders.Order;
+
 public interface ITransactionManager {
-    boolean verifyTxn(String stallName, Order order);
+    void recordTransaction(String stallName, Order order); // replaces verifyTxn
     Transaction getTxn(int txnID);
     List<Transaction> getAllTransactions();
+    void updateStatusForOrder(int orderId, String newStatus);
 }
