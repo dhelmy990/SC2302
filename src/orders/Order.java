@@ -1,68 +1,79 @@
 package orders;
-import java.util.*;
 
 import inventory.Item;
+import java.util.List;
+import java.time.LocalDateTime;
 
 public class Order {
-    private static int count = 1;
-    private List <Item> items;
-    private int orderID;
-    private int waitingTime;
-    private double totalPrice;
-    private boolean complete = false;
+    private static int counter = 1;
+    private final int id;
+    private final String username;
+    private final List<Item> items;
+    private String status = "Preparing";
+    private String paymentMethod;
+    private final String stallName;
+    private final LocalDateTime orderTime;
 
-    Order(List <Item> items){
-        this.items = items; // Contains an array of Item Objects
-        this.orderID = count++;
-        this.waitingTime = estWaitingTime();
-        this.totalPrice = calcTotalPrice();
+    public String getPaymentMethod() {
+        return paymentMethod;
     }
 
-    // Returns the total waiting time for this specific Order object (which is the sum of individual Item prep times).
-    private int estWaitingTime() {
-        int waitingTime = 0;
-        int numOfItems = items.size();
-        for (int i = 0; i<numOfItems; i++){
-            waitingTime += items.get(i).getPrepTime();
-        }
-        return waitingTime;
+    public String getStallName() {
+        return stallName;
     }
 
-    private double calcTotalPrice() {
-        double totalPrice = 0;
-        int numOfItems = items.size();
-        for (int i = 0; i<numOfItems; i++){
-            totalPrice += items.get(i).getPrice();
-        }
-        return totalPrice;
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
     }
 
-    public double getTotalPrice() {
-        return totalPrice;
-    }
-
-    public int getWaitingTime(){
-        return waitingTime;
+    public Order(String username, List<Item> items, String stallName) {
+        this.id = counter++;
+        this.username = username;
+        this.items = items;
+        this.stallName = stallName;
+        this.orderTime = LocalDateTime.now();
     }
 
     public int getID() {
-        return orderID;
+        return id;
     }
 
-    public void markComplete(){
-        this.complete = true;
+    public String getUsername() {
+        return username;
     }
 
-    public boolean getCompletionStatus(){
-        return this.complete;
+    public int getWaitingTime() {
+        return items.stream().mapToInt(Item::getPrepTime).sum();
     }
 
-    public void display() {
-        int numOfItems = items.size();
-        System.out.println("Order breakdown:");
-        for (int i = 0; i<numOfItems; i++){
-            Item item = items.get(i);
-            System.out.println(item.getName() + " : $" + item.getPrice());
-        }
+    public String getStatus() {
+        return status;
+    }
+
+    public void markCompleted() {
+        this.status = "Completed";
+    }
+    
+    public void markCancelled() {
+        this.status = "Cancelled";
+    }
+    public void markCooking() {
+        this.status = "Cooking";
+    }
+    public List<Item> getItems() {
+        return items;
+    }
+
+    public boolean isCooking() {
+        return "Cooking".equals(status);
+    }
+    
+    public boolean isPreparing() {
+        return "Preparing".equals(status);
+    }
+    
+    
+    public LocalDateTime getOrderTime() {
+        return orderTime;
     }
 }

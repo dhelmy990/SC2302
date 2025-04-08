@@ -1,14 +1,13 @@
 package users;
-import java.util.*;
-import inventory.*;
-import orders.*;
 
-public class Owner extends User{
+import stalls.Stall;
+
+public class Owner extends User {
     private Stall managedStall;
 
-    public Owner(String username, String email, String password, Stall stall) {
+    public Owner(String username, String email, String password) {
         super(username, email, password);
-        this.managedStall = stall;
+        this.managedStall = null; // default until assigned
     }
 
     @Override
@@ -16,18 +15,11 @@ public class Owner extends User{
         return "Owner";
     }
 
-    // Stall knows its own Inventory. Inventory can display can update items
-    public void viewInventory() {
-        System.out.println("Inventory for: " + managedStall.getName());
-        managedStall.getInventory().displayItems();
+    public Stall getManagedStall() {
+        return managedStall;
     }
 
-    public void updateInventory(List<Item> newItems) {
-        managedStall.getInventory().setItems(newItems);
-    }
-
-    // Call method in Order class
-    public void markOrderAsComplete(Order order) {
-        order.markComplete();
+    public void setManagedStall(Stall managedStall) {
+        this.managedStall = managedStall;
     }
 }

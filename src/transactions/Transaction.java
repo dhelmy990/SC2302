@@ -1,50 +1,76 @@
 package transactions;
-import java.time.LocalDateTime;
+
 import orders.Order;
+import inventory.Item;
+import java.time.LocalDateTime;
+import java.util.List;
 
 public class Transaction {
-    static int count = 1;
-    private String userName;
-    private int txnID;
-    private String stallName;
-    private LocalDateTime dateTime;
-    private double totalPrice;
-    private Order order;
+    private static int counter = 1;
+    private final int txnID;
+    private final String stallName;
+    private final String dinerName;
+    private final LocalDateTime dateTime;
+    private final List<Item> items;
+    private final int totalCost;
+    private final String paymentMethod;
+    private String status;
+    private final int orderId;
 
-    Transaction(String userName, String stallName, Order order){
-        this.userName = userName;
-        this.txnID = count++;
-        this.dateTime = LocalDateTime.now();
+    public Transaction(String stallName, Order order, String paymentMethod) {
+        this.txnID = counter++;
         this.stallName = stallName;
-        this.order = order;
-        this.totalPrice = order.getTotalPrice();
+        this.dinerName = order.getUsername();
+        this.items = order.getItems();
+        this.totalCost = items.stream().mapToInt(Item::getPrice).sum();
+        this.dateTime = LocalDateTime.now();
+        this.paymentMethod = paymentMethod;
+        this.status = order.getStatus(); 
+        this.orderId = order.getID();
     }
 
-    public int getTxnID(){
-        return this.txnID;
+    public void markCompleted() {
+        this.status = "Completed";
     }
 
-    public String getUsername(){
-        return userName;
+    public void markCancelled() {
+        this.status = "Cancelled";
     }
 
-    public void display(){
-        System.out.println("Stall: " + this.stallName);
-        System.out.println("Date and time: " + this.dateTime);
-        System.out.println("Payment received: $" + this.totalPrice);
-        this.order.display(); 
+
+    public String getStatus() {
+        return status;
     }
 
-    public int getOrderID(){
-        return order.getID(); //???
-    }
-    
-    public Order getOrder(){
-        return order;
+    public String getDinerName() {
+        return dinerName;
     }
 
-    public String getStallName(){
+    public String getStallName() {
         return stallName;
     }
 
+    public int getOrderId() {
+        return orderId;
+    }
+
+    public int getTxnID() {
+        return txnID;
+    }
+
+    public LocalDateTime getDateTime() {
+        return dateTime;
+    }
+
+    public List<Item> getItems() {
+        return items;
+    }
+
+    public int getTotalCost() {
+        return totalCost;
+    }
+
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
 }

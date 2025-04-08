@@ -1,88 +1,52 @@
 package transactions;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import orders.Order;
+import utils.TransactionUtils;
 
-public class TxnManager {
+public class TxnManager implements ITransactionManager {
+    private final List<Transaction> txns = new ArrayList<>();
 
-    private static  List <Transaction> txns; // List of Transaction objects
-    private static Scanner scn = new Scanner(System.in); 
-
-    // Returns true if Txn is successfully processed, false otherwise. Ensure stallName is identical to that in Stall object.
-    public static boolean verifyTxn(String username, String stallName, Order order){
-        int success = getPayment();
-        if (success == 1){
-            Transaction txn = new Transaction(username, stallName, order);
-            txns.add(txn);
-            return true;
-        } else{
-            return false;
-        }
+    public void recordTransaction(String stallName, Order order) {
+        Transaction txn = new Transaction(stallName, order, order.getPaymentMethod());
+        txns.add(txn);
     }
 
-    // Returns the Transaction Object associated with the txnID, or null if Transaction is not found.
-    public static Transaction getTxn(int txnID){
-        int txnCount = txns.size();
-        for (int i = 0; i < txnCount; i++){
-            if (txns.get(i).getTxnID() == txnID){
-                return txns.get(i);
+    @Override
+    public Transaction getTxn(int txnID) {
+        for (Transaction txn : txns) {
+            if (txn.getTxnID() == txnID) {
+                return txn;
             }
         }
         return null;
     }
 
-    public static void displayOrderHistoryForUser(String username){
-        int txnCount = txns.size();
-        for (int i = 0; i < txnCount; i++){
-            Transaction txn = txns.get(i);
-            if (txn.getUsername() == username){
-                txn.display();
-                System.out.println();
+    @Override
+    public List<Transaction> getAllTransactions() {
+        return new ArrayList<>(txns); // prevent external mutation
+    }
+
+    public void displayAllTransactions() {
+        if (txns.isEmpty()) {
+            System.out.println("No transactions available.");
+        } else {
+            txns.forEach(TransactionUtils::display);
+        }
+    }
+
+    public void updateStatusForOrder(int orderId, String newStatus) {
+        for (Transaction txn : txns) {
+            if (txn.getOrderId() == orderId) {
+                if ("Completed".equalsIgnoreCase(newStatus)) {
+                    txn.markCompleted();
+                } else if ("Cancelled".equalsIgnoreCase(newStatus)) {
+                    txn.markCancelled();
+                }
+                break;
             }
         }
-    }
-
-    public static void displayOrderSummaryForUser(String username){
-        int txnCount = txns.size();
-        for (int i = txnCount-1; i >= 0; i--){
-            Transaction txn = txns.get(i);
-            if (txn.getUsername() == username){
-                txn.display();
-                System.out.println();
-                return;
-            }
-        }
-    }
-
-    private static int getPayment(){
-        // To implement
-        int paymentMode = getPaymentMode();
-        int paymentStatus = 0;
-        switch (paymentMode){
-            case 1: paymentStatus = cardPayment();
-                    break;
-            default: paymentStatus = 0;
-        }
-        if (paymentStatus == 0){
-            return 0;
-        }
-        return 1;
-    }
-
-    private static int getPaymentMode(){
-        System.out.println("Please select payment mode:");
-        System.out.println("(1) Card Payment");
-        System.out.println("(2) Cancel");
-        int mode = scn.nextInt();
-        return mode;
-        
-    }
-
-    private static int cardPayment(){ 
-        System.out.println("Please enter card number:");
-        scn.nextInt();
-        System.out.println("Please enter security code:");
-        scn.nextInt();
-        return 1;
     }
 }
