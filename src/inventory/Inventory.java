@@ -34,4 +34,19 @@ public class Inventory {
             item.reduceQuantity(amount);
         }
     }
+
+    public boolean removeItem(Item item) {
+        return items.remove(item);
+    }
+
+    public boolean updateItem(Item updated) {
+        Item existing = findItemByName(updated.getName());
+        if (existing != null) {
+            removeItem(existing);
+            addItem(updated);
+            return true;
+        }
+        return false;
+    }
+
 }

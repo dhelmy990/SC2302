@@ -65,9 +65,7 @@ if (o.isPreparing()) {
     if (stall != null) {
         for (Item item : o.getItems()) {
             Item inventoryItem = stall.getInventory().findItemByName(item.getName());
-            System.out.println("Im inside");
             if (inventoryItem != null) {
-                System.out.println("I deleted sth!" + item);
                 inventoryItem.setQuantity(inventoryItem.getQuantity() + 1);
             }
         }

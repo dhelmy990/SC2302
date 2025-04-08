@@ -5,17 +5,21 @@ import java.util.Scanner;
 
 public class ItemInputUtils {
     private ItemInputUtils() {
-        // Prevent instantiation
     }
-    public static Item createItemFromInput(Scanner scanner) {
-        System.out.print("Enter item name: ");
-        String name = scanner.nextLine();
 
+    public static Item createItemFromInput(Scanner scanner) {
+        String name = prompt(scanner, "Enter item name: ");
         int price = readInt(scanner, "Enter price: ");
         int prep = readInt(scanner, "Enter preparation time (in minutes): ");
         int qty = readInt(scanner, "Enter quantity: ");
-
         return new Item(name, price, prep, qty);
+    }
+
+    public static Item updateItemFromInput(Scanner scanner, Item item) {
+        int price = readInt(scanner, "Enter new price (current: $" + item.getPrice() + "): ");
+        int prep = readInt(scanner, "Enter new prep time (current: " + item.getPrepTime() + " mins): ");
+        int qty = readInt(scanner, "Enter new quantity (current: " + item.getQuantity() + "): ");
+        return new Item(item.getName(), price, prep, qty);
     }
 
     private static int readInt(Scanner scanner, String prompt) {
@@ -25,37 +29,13 @@ public class ItemInputUtils {
             try {
                 return Integer.parseInt(input);
             } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a valid number.");
+                System.out.println("Invalid input. Please enter a number.");
             }
         }
     }
 
-
-    private static int getIntInput(Scanner scanner) {
-        while (true) {
-            String input = scanner.nextLine();
-            try {
-                return Integer.parseInt(input);
-            } catch (NumberFormatException e) {
-                System.out.print("Invalid number. Please enter a valid integer: ");
-            }
-        }
+    private static String prompt(Scanner scanner, String message) {
+        System.out.print(message);
+        return scanner.nextLine();
     }
-    
-
-    public static Item updateItemFromInput(Scanner scanner, Item existingItem) {
-        System.out.println("Updating item: " + existingItem.getName());
-    
-        System.out.print("Enter new price (current: $" + existingItem.getPrice() + "): ");
-        int price = getIntInput(scanner);
-    
-        System.out.print("Enter new preparation time (current: " + existingItem.getPrepTime() + " mins): ");
-        int prep = getIntInput(scanner);
-    
-        System.out.print("Enter new quantity (current: " + existingItem.getQuantity() + "): ");
-        int qty = getIntInput(scanner);
-    
-        return new Item(existingItem.getName(), price, prep, qty);
-    }
-    
 }

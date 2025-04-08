@@ -10,6 +10,8 @@ import queue.QueueManager;
 import stalls.Stall;
 import transactions.Transaction;
 import utils.*;
+import services.ItemUpdateService;
+import services.ItemDeleteService;
 
 public class OwnerFlow extends Flow{
 
@@ -43,9 +45,8 @@ public class OwnerFlow extends Flow{
                     System.out.println("Item added.");
                 }
 
-                case 3 -> InventoryUtils.updateItemFlow(stall.getInventory(), scanner);
-
-                case 4 -> InventoryUtils.deleteItemFlow(stall.getInventory(), scanner); 
+                case 3 -> new ItemUpdateService(scanner).update(stall.getInventory());
+                case 4 -> new ItemDeleteService(scanner).delete(stall.getInventory());
                 case 5 -> {
                     List<Order> orders = QueueManager.getInstance().getAllOrdersForStall(stall.getName());
                     if (orders.isEmpty()) {

@@ -3,7 +3,7 @@ package simulated;
 import inventory.Item;
 import stalls.IStallService;
 import stalls.Stall;
-import stalls.CanteenManager;
+import canteen.CanteenManager;
 import users.*;
 
 import java.util.ArrayList;

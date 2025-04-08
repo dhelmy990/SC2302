@@ -19,12 +19,19 @@ public class QueueManager {
 
     public int enqueueOrder(String stallName, Order order) {
         Queue<Order> queue = stallQueues.computeIfAbsent(stallName, k -> new LinkedList<>());
+
+        int waitTimeBeforeThisOrder = estimateWaitTime(queue);
+        int thisOrderPrepTime = order.getItems().stream().mapToInt(i -> i.getPrepTime()).sum();
+
+        order.setWaitingTime(waitTimeBeforeThisOrder + thisOrderPrepTime); 
+
         queue.offer(order);
         Order head = queue.peek();
-    if (head != null && head.getStatus().equals("Preparing")) {
-        head.markCooking();
-    }
-        return estimateWaitTime(queue);
+        if (head != null && head.getStatus().equals("Preparing")) {
+            head.markCooking();
+        }
+
+        return order.getWaitingTime(); 
     }
 
     public Order dequeueOrder(String stallName) {
@@ -35,7 +42,7 @@ public class QueueManager {
     public int estimateWaitTime(Queue<Order> queue) {
         int totalTime = 0;
         for (Order o : queue) {
-            totalTime += o.getWaitingTime();
+            totalTime += o.getItems().stream().mapToInt(i -> i.getPrepTime()).sum();
         }
         return totalTime;
     }

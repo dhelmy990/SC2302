@@ -13,6 +13,12 @@ public class Order {
     private String paymentMethod;
     private final String stallName;
     private final LocalDateTime orderTime;
+    private int waitingTime;
+
+    public void setWaitingTime(int waitingTime) {
+        this.waitingTime = waitingTime;
+    }
+    
 
     public String getPaymentMethod() {
         return paymentMethod;
@@ -43,7 +49,7 @@ public class Order {
     }
 
     public int getWaitingTime() {
-        return items.stream().mapToInt(Item::getPrepTime).sum();
+        return waitingTime;
     }
 
     public String getStatus() {
