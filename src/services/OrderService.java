@@ -9,7 +9,7 @@ import java.util.Scanner;
 import inventory.Item;
 import orders.Order;
 import orders.OrderManager;
-import queue.QueueManager;
+import orders.QueueManager;
 import stalls.IStallService;
 import stalls.Stall;
 import transactions.TxnManager;

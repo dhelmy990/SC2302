@@ -1,5 +1,6 @@
 package users;
 import java.util.*;
+import stalls.*;
 
 import transactions.*;
 

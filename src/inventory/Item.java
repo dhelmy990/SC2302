@@ -1,29 +1,42 @@
 package inventory;
-public class Item {
-    private String name;
-    private int price;
-    private int prepTime;
 
-    Item(String name, int price, int prepTime){
+public class Item {
+    private final String name;
+    private final int price;
+    private final int prepTime;
+    private int quantity; // new field
+
+    public Item(String name, int price, int prepTime, int quantity) {
         this.name = name;
         this.price = price;
         this.prepTime = prepTime;
+        this.quantity = quantity;
     }
 
-    public int getPrepTime(){
-        return prepTime;
-    }
-
-    public String getName(){
+    public String getName() {
         return name;
     }
 
-    public int getPrice(){
+    public int getPrice() {
         return price;
     }
 
-    public void setPrepTime(int prepTime){
-        this.prepTime = prepTime;
+    public int getPrepTime() {
+        return prepTime;
     }
 
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    public void reduceQuantity(int amount) {
+        this.quantity -= amount;
+    }
+    public void addQuantity(int amount) {
+        this.quantity += amount;
+    }
 }
