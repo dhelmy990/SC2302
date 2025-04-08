@@ -3,6 +3,9 @@ package utils;
 import orders.Order;
 
 public class ReceiptUtils {
+    private ReceiptUtils() {
+        // Prevent instantiation
+    }
 
     public static void printReceipt(Order order, int total, String paymentMethod, boolean isGuest) {
         System.out.println("\n====== " + (isGuest ? "Guest" : "Diner") + " Order Receipt ======");

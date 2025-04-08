@@ -3,6 +3,9 @@ package utils;
 import transactions.Transaction;
 
 public class TransactionUtils {
+    private TransactionUtils() {
+        // Prevent instantiation
+    }
     public static void display(Transaction txn) {
         System.out.println(
                 "\nTxn ID: " + txn.getTxnID() + ", Stall: " + txn.getStallName() + ", Diner: " + txn.getDinerName());

@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.Scanner;
 
 public class InventoryUtils {
+    private InventoryUtils() {
+        // Prevent instantiation
+    }
     public static void updateItemFlow(Inventory inventory, Scanner scanner) {
         List<Item> items = inventory.getAllItems();
         ItemUtils.displayInventory(items);

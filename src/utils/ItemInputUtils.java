@@ -4,6 +4,9 @@ import inventory.Item;
 import java.util.Scanner;
 
 public class ItemInputUtils {
+    private ItemInputUtils() {
+        // Prevent instantiation
+    }
     public static Item createItemFromInput(Scanner scanner) {
         System.out.print("Enter item name: ");
         String name = scanner.nextLine();

@@ -8,6 +8,9 @@ import java.util.Map;
 import inventory.Item;
 
 public class ItemUtils {
+    private ItemUtils() {
+        // Prevent instantiation
+    }
     public static void displayGroupedItems(List<Item> items) {
         Map<String, Integer> grouped = new LinkedHashMap<>();
         Map<String, Integer> prices = new HashMap<>();

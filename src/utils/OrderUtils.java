@@ -7,6 +7,9 @@ import java.util.*;
 
 public class OrderUtils {
 
+    private OrderUtils() {
+        // Prevent instantiation
+    }
     public static void displayGroupedItems(List<Item> items) {
         Map<String, Integer> grouped = new LinkedHashMap<>();
         Map<String, Integer> prices = new HashMap<>();

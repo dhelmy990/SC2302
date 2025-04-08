@@ -2,6 +2,9 @@ package utils;
 import users.User;
 import java.util.*;
 public class UserUtils {
+    private UserUtils() {
+        // Prevent instantiation
+    }
     public static void handleAccountUpdate(User user, Scanner scanner) {
         System.out.println("\n--- My Account ---");
         user.displayUserInfo();

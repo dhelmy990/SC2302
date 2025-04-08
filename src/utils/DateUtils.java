@@ -9,4 +9,8 @@ public class DateUtils {
     public static String format(LocalDateTime dateTime) {
         return dateTime.format(formatter);
     }
+
+    private DateUtils() {
+        // Prevent instantiation
+    }
 }
