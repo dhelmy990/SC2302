@@ -164,7 +164,7 @@ public class Main {
                         System.out.println("No orders found.");
                     } else {
                         for (Order order : history) {
-                            OrderUtils.displayOrderSummary(order, true, false); // 👈 isDiner = true
+                            OrderUtils.displayOrderSummary(order, true, false);
                         }
                     }
                 }
