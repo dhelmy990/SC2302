@@ -1,4 +1,3 @@
-// === FILE: QueueManager.java ===
 package queue;
 
 import java.util.*;
@@ -7,12 +6,9 @@ import orders.Order;
 
 public class QueueManager {
     private static QueueManager instance;
-    private final Map<String, Queue<Order>> stallQueues;
+    private static final Map<String, Queue<Order>> stallQueues = new HashMap<>();
     private final Map<String, List<Order>> completedOrders = new HashMap<>();
 
-    private QueueManager() {
-        stallQueues = new HashMap<>();
-    }
 
     public static QueueManager getInstance() {
         if (instance == null) {
@@ -77,7 +73,7 @@ public class QueueManager {
         }
         return result;
     }
-    public static String getStallNameForOrder(int orderId) {
+    public String getStallNameForOrder(int orderId) {
         for (Map.Entry<String, Queue<Order>> entry : QueueManager.getInstance().getAllQueues().entrySet()) {
             for (Order o : entry.getValue()) {
                 if (o.getID() == orderId) {

@@ -17,6 +17,7 @@ public class OrderManager {
     }
 
     public void addOrder(Order order) {
+        System.out.println("Im here :)");
         orders.add(order);
     }
 

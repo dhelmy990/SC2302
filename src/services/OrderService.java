@@ -5,11 +5,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Scanner;
-
+import queue.QueueManager;
 import inventory.Item;
-import orders.Order;
-import orders.OrderManager;
-import orders.QueueManager;
+import orders.*;
 import stalls.IStallService;
 import stalls.Stall;
 import transactions.TxnManager;
@@ -20,31 +18,32 @@ public class OrderService {
     private final OrderManager orderManager;
     private final TxnManager txnManager;
     private final IStallService stallService;
+    private final QueueManager queueManager;
 
-public OrderService(OrderManager orderManager, TxnManager txnManager, IStallService stallService) {
-    this.orderManager = orderManager;
-    this.txnManager = txnManager;
-    this.stallService = stallService;
-}
+    public OrderService(OrderManager orderManager, QueueManager queueManager2, TxnManager txnManager, IStallService stallService) {
+        this.orderManager = orderManager;
+        this.txnManager = txnManager;
+        this.stallService = stallService;
+        this.queueManager = queueManager2;
+    }
 
     public int placeOrder(String stallName, Order order) {
-        int estTime = QueueManager.getInstance().enqueueOrder(stallName, order);
+        int estTime = queueManager.enqueueOrder(stallName, order);
         orderManager.addOrder(order);
 
         return estTime;
     }
 
-public List<Order> getOrderHistory(String userId) {
-    return orderManager.getOrdersByUser(userId);
-}
-
+    public List<Order> getOrderHistory(String userId) {
+        return orderManager.getOrdersByUser(userId);
+    }
 
     public int calculateTotalCost(java.util.List<inventory.Item> items) {
         return items.stream().mapToInt(inventory.Item::getPrice).sum();
     }
     public Order cancelOrder(String username, int orderId) {
-        String stallName = QueueManager.getInstance().getStallNameForOrder(orderId);
-        Queue<Order> queue = QueueManager.getInstance().getAllQueues().getOrDefault(stallName, new LinkedList<>());
+        String stallName = queueManager.getStallNameForOrder(orderId);
+        Queue<Order> queue = queueManager.getAllQueues().getOrDefault(stallName, new LinkedList<>());
     
         Iterator<Order> iterator = queue.iterator();
         while (iterator.hasNext()) {
@@ -66,7 +65,9 @@ if (o.isPreparing()) {
     if (stall != null) {
         for (Item item : o.getItems()) {
             Item inventoryItem = stall.getInventory().findItemByName(item.getName());
+            System.out.println("Im inside");
             if (inventoryItem != null) {
+                System.out.println("I deleted sth!" + item);
                 inventoryItem.setQuantity(inventoryItem.getQuantity() + 1);
             }
         }
@@ -83,7 +84,7 @@ if (o.isPreparing()) {
     }
     
     public boolean handleOrderCancellationFlow(String username, Scanner scanner) {
-        List<Order> orders = QueueManager.getInstance().getOrdersByUser(username);
+        List<Order> orders = queueManager.getOrdersByUser(username);
         List<Order> cancellable = new ArrayList<>();
     
         for (Order o : orders) {
