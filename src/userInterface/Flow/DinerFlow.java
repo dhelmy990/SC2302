@@ -36,6 +36,37 @@ public class DinerFlow extends Flow{
                         for (Order order : history) {
                             OrderUtils.displayOrderSummary(order, true, false);
                         }
+
+                        System.out.println("\nEnter an Order ID to view full details or press Enter to skip:");
+
+                        while (true) {
+                            System.out.print("> ");
+                            String input = scanner.nextLine().trim();
+
+                            if (input.isEmpty()) {
+                                System.out.println("Returning to menu...");
+                                break;
+                            }
+
+                            try {
+                                int selectedId = Integer.parseInt(input);
+                                Order selectedOrder = history.stream()
+                                        .filter(o -> o.getID() == selectedId)
+                                        .findFirst()
+                                        .orElse(null);
+
+                                if (selectedOrder != null) {
+                                    System.out.println("\n--- Order Details ---");
+                                    OrderUtils.displayDetailedOrder(selectedOrder);
+                                    break; // Done viewing one, return to menu
+                                } else {
+                                    System.out.println("Order ID not found. Try again or press Enter to go back.");
+                                }
+                            } catch (NumberFormatException e) {
+                                System.out.println(
+                                        "Invalid input. Please enter a valid Order ID or press Enter to skip.");
+                            }
+                        }
                     }
                 }
 

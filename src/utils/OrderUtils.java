@@ -42,4 +42,35 @@ public class OrderUtils {
         System.out.println("Items:");
         displayGroupedItems(order.getItems());
     }
+
+    public static void displayDetailedOrder(Order order) {
+        System.out.println("Order ID: " + order.getID());
+        System.out.println("Stall: " + order.getStallName());
+        System.out.println("Status: " + order.getStatus());
+        System.out.println("Order Time: " + DateUtils.format(order.getOrderTime()));
+        System.out.println(
+                "Est. Collection Time: " + DateUtils.format(order.getOrderTime().plusMinutes(order.getWaitingTime())));
+        System.out.println("Paid via: " + order.getPaymentMethod());
+
+        System.out.println("Items Breakdown:");
+        Map<String, Integer> itemCounts = new LinkedHashMap<>();
+        Map<String, Integer> itemPrices = new LinkedHashMap<>();
+
+        for (Item item : order.getItems()) {
+            itemCounts.put(item.getName(), itemCounts.getOrDefault(item.getName(), 0) + 1);
+            itemPrices.put(item.getName(), item.getPrice());
+        }
+
+        int total = 0;
+        for (String name : itemCounts.keySet()) {
+            int qty = itemCounts.get(name);
+            int price = itemPrices.get(name);
+            int subtotal = qty * price;
+            total += subtotal;
+            System.out.println("- " + name + " x" + qty + " @ $" + price + " = $" + subtotal);
+        }
+
+        System.out.println("Total Paid: $" + total);
+    }
+
 }
