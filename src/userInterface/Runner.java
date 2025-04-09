@@ -13,6 +13,8 @@ import userInterface.Flow.GuestFlow;
 import userInterface.Flow.OwnerFlow;
 import userInterface.Menu.*;
 import users.*;
+import queue.CompletionService;
+import queue.QueueService;
 
 public class Runner {
 
@@ -26,9 +28,10 @@ public class Runner {
     public static final OrderService orderService = dependencies.orderService;
     public static final AdminService adminService = dependencies.adminService;
     public static final WelcomeMenu welcomeMenu = dependencies.welcomeMenu;
-
+    public static final QueueService queueService = dependencies.queueService;
+    public static final CompletionService completionService = dependencies.completionService;
     public static final DinerFlow dinerFlow = new DinerFlow(dependencies);
-    public static final OwnerFlow ownerFlow = new OwnerFlow(dependencies);
+    public static final OwnerFlow ownerFlow = new OwnerFlow(dependencies, queueService, completionService);
     public static final GuestFlow guestFlow = new GuestFlow(dependencies);
     public static final AdminFlow adminFlow = new AdminFlow(dependencies);
     public static void main(String[] args) {
