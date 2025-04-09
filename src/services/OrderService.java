@@ -36,7 +36,11 @@ public class OrderService {
 
         return estTime;
     }
-
+    public List<Order> getCancellableOrders(String username) {
+        return queueservice.getOrdersByUser(username).stream()
+            .filter(Order::isPreparing)
+            .toList();
+    }
     public List<Order> getOrderHistory(String userId) {
         return orderManager.getOrdersByUser(userId);
     }
@@ -91,59 +95,7 @@ public class OrderService {
         return null;
     }
     
-    public boolean handleOrderCancellationFlow(String username, Scanner scanner) {
-        List<Order> orders = queueservice.getOrdersByUser(username);
-        List<Order> cancellable = new ArrayList<>();
-    
-        for (Order o : orders) {
-            if (o.isPreparing()) {
-                cancellable.add(o);
-            }
-        }
-    
-        if (cancellable.isEmpty()) {
-            System.out.println("No cancellable orders found.");
-            return false;
-        }
-    
-        System.out.println("\nYour current preparing orders:");
-        for (Order o : cancellable) {
-            OrderUtils.displayOrderSummary(o, true, username.startsWith("guest_"));
-        }
-    
-        while (true) {
-            System.out.print("Enter Order ID to cancel or type exit to quit: ");
-            String input = scanner.nextLine();
-            if (input.equalsIgnoreCase("exit")) {
-                System.out.println("Cancellation aborted.");
-                break;
-            }
-            try {
-                int id = Integer.parseInt(input);
-    
-                boolean isValid = cancellable.stream().anyMatch(o -> o.getID() == id);
-                if (!isValid) {
-                    System.out.println("Invalid Order ID. Please choose from the list above.");
-                    continue;
-                }
-    
-                Order cancelledOrder = cancelOrder(username, id);
-                if (cancelledOrder != null) {
-                    int refundAmount = cancelledOrder.getItems().stream().mapToInt(Item::getPrice).sum();
-                    System.out.println("Order cancelled successfully. $" + refundAmount + " has been refunded.");
-                    return true;
-                } else {
-                    System.out.println("Order not found or cannot be cancelled.");
-                    return false;
-                }
-    
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a valid number.");
-            }
-        }
-    
-        return false;
-    }
+  
     
     
     
