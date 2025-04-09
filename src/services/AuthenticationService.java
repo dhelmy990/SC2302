@@ -2,22 +2,22 @@ package services;
 
 import users.*;
 import java.util.List;
-import java.util.Scanner;
 
 public class AuthenticationService {
     private final List<User> users;
-    private final Scanner scanner;
+    private final IUserInputHandler inputHandler;
+    private final IDuplicateCheckService duplicateCheckService;
 
-    public AuthenticationService(List<User> users, Scanner scanner) {
+    public AuthenticationService(List<User> users, IUserInputHandler inputHandler,
+            IDuplicateCheckService duplicateCheckService) {
         this.users = users;
-        this.scanner = scanner;
+        this.inputHandler = inputHandler;
+        this.duplicateCheckService = duplicateCheckService;
     }
 
     public User login() {
-        System.out.print("Enter username: ");
-        String username = scanner.nextLine();
-        System.out.print("Enter password: ");
-        String password = scanner.nextLine();
+        String username = inputHandler.getNonEmptyInput("Enter username: ");
+        String password = inputHandler.getNonEmptyInput("Enter password: ");
 
         for (User user : users) {
             if (user.login(username, password)) {
@@ -30,36 +30,40 @@ public class AuthenticationService {
     }
 
     public void signUp() {
-        System.out.print("Choose role (diner/owner): ");
-        String role = scanner.nextLine();
-        System.out.print("Enter username: ");
-        String username = scanner.nextLine();
-        System.out.print("Enter email: ");
-        String email = scanner.nextLine();
-
-        for (User u : users) {
-            if (u.getUsername().equalsIgnoreCase(username)) {
-                System.out.println("Username already exists.");
-                return;
+        String role;
+        while (true) {
+            role = inputHandler.getNonEmptyInput("Choose role (diner/owner): ").toLowerCase();
+            if (role.equals("diner") || role.equals("owner")) {
+                break; // Exit the loop if the role is valid
             }
-            if (u.getEmail().equalsIgnoreCase(email)) {
-                System.out.println("Email already in use.");
-                return;
-            }
+            System.out.println("Invalid role. Please enter either 'diner' or 'owner'.");
         }
 
-        System.out.print("Enter password: ");
-        String password = scanner.nextLine();
+        String username = getUniqueInput("Enter username: ",
+                input -> duplicateCheckService.isUsernameAvailable(input, null, users));
+        String email = getUniqueInput("Enter email: ",
+                input -> duplicateCheckService.isEmailAvailable(input, null, users));
+        String password = inputHandler.getNonEmptyInput("Enter password: ");
 
-        switch (role.toLowerCase()) {
-            case "diner" -> users.add(new Diner(username, email, password));
-            case "owner" -> users.add(new Owner(username, email, password));
-            default -> {
-                System.out.println("Invalid role.");
-                return; 
-            }
+        // Create the user based on the role
+        User newUser;
+        switch (role) {
+            case "diner" -> newUser = new Diner(username, email, password);
+            case "owner" -> newUser = new Owner(username, email, password);
+            default -> throw new IllegalStateException("Unexpected role: " + role); // probably never happen due to validation above
         }
 
+        users.add(newUser);
         System.out.println("Account created successfully. You may now log in.");
+    }
+
+    private String getUniqueInput(String prompt, IFieldValidator validator) {
+        while (true) {
+            String input = inputHandler.getNonEmptyInput(prompt);
+            if (validator.validate(input)) {
+                return input;
+            }
+            System.out.println("Input is not valid. Please try again.");
+        }
     }
 }

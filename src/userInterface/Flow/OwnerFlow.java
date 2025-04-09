@@ -119,7 +119,7 @@ public class OwnerFlow extends Flow{
                     }
                 }
                 case 7 -> showTransactionsForStall(stall.getName());
-                case 8 -> UserUtils.handleAccountUpdate(owner, scanner);
+                case 8 -> accountUpdateService.updateAccount(user, users);
                 case 9 -> {
                     System.out.println("Logging out...");
                     return;

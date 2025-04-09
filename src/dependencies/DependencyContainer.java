@@ -24,6 +24,10 @@ public class DependencyContainer {
 
     public final Scanner scanner = new Scanner(System.in);
     public final UserInputHandler userInputHandler = new UserInputHandler(scanner);
+    private final IDuplicateCheckService duplicateCheckService;
+    private final IAccountUpdateService accountUpdateService;
+    private final AuthenticationService authenticationService;
+
 
     public DependencyContainer(){
         OrderManager orderManager = new OrderManager();
@@ -37,8 +41,12 @@ public class DependencyContainer {
         // Set up adminService
         StallManagementService stallManagementService = new StallManagementService(stalls);
         UserManagementService userManagementService = new UserManagementService(users, stallManagementService);
-        this.adminService = new AdminService(userManagementService, stallManagementService, userInputHandler);
+  
         this.completionService = new CompletionService(queueService);
+        this.duplicateCheckService = new DuplicateCheckService();
+        this.accountUpdateService = new AccountUpdateService(userInputHandler, duplicateCheckService);
+        this.authenticationService = new AuthenticationService(users, userInputHandler, duplicateCheckService);
+        this.adminService = new AdminService(userManagementService, stallManagementService, userInputHandler,accountUpdateService,users);
     }
 
     public CanteenManager getCanteenManagerInstance(){
@@ -53,6 +61,10 @@ public class DependencyContainer {
         return adminService;
     }
 
+    public IAccountUpdateService getAccountUpdateService() {
+        return this.accountUpdateService;
+    }
+
     public CompletionService getCompletionServiceInstance(){
         return completionService;
     }
@@ -63,6 +75,10 @@ public class DependencyContainer {
 
     public List<User> getUsers(){
         return users;
+    }
+    
+    public AuthenticationService getAuthenticationService() {
+        return authenticationService;
     }
 
 }

@@ -15,7 +15,7 @@ public class Runner {
     private static final DependencyContainer dependencies = new DependencyContainer();
     private static final Scanner scanner = dependencies.scanner;
     private static final List<User> users = dependencies.getUsers();
-    private static final AuthenticationService authService = new AuthenticationService(users, scanner);
+    private static final AuthenticationService authService = dependencies.getAuthenticationService();
     private static final GuestUserService guestUserService = new GuestUserService();
     private static final DinerFlow dinerFlow = new DinerFlow(dependencies);
     private static final OwnerFlow ownerFlow = new OwnerFlow(dependencies, dependencies.getOrderServiceInstance().getQueueServiceInstance(), dependencies.getCompletionServiceInstance());

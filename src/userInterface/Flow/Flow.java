@@ -14,6 +14,7 @@ public abstract class Flow {
         public final List<User> users;
         public final OrderService orderService;
         public final AdminService adminService;
+        public final IAccountUpdateService accountUpdateService;
 
     Flow(DependencyContainer dependencies){
         this.scanner = dependencies.scanner;
@@ -22,6 +23,7 @@ public abstract class Flow {
         this.users = dependencies.getUsers();
         this.orderService = dependencies.getOrderServiceInstance();
         this.adminService = dependencies.getAdminService();
+        this.accountUpdateService = dependencies.getAccountUpdateService();
     }
 
     abstract void run(User user);

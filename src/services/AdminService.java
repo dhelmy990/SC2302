@@ -1,20 +1,26 @@
 package services;
 
 import users.*;
+
+import java.util.List;
+
 import stalls.*;
 
 public class AdminService {
+    private final List<User> users;
     private final UserManagementService userService;
     private final StallManagementService stallService;
-    private final UserInputHandler inputHandler;
+    private final IUserInputHandler inputHandler;
+    private final IAccountUpdateService accountUpdateService;
 
-    public AdminService(UserManagementService userService,
-                        StallManagementService stallService,
-                        UserInputHandler inputHandler) {
-        this.userService = userService;
-        this.stallService = stallService;
-        this.inputHandler = inputHandler;
-    }
+public AdminService(UserManagementService userManagementService, StallManagementService stallManagementService,
+                     IUserInputHandler inputHandler, IAccountUpdateService accountUpdateService, List<User> users) {
+    this.userService = userManagementService;
+    this.stallService = stallManagementService;
+    this.inputHandler = inputHandler;
+    this.accountUpdateService = accountUpdateService; 
+    this.users = users;
+}
 
     public void viewAllUsers() {
         userService.viewAllUsers();
@@ -112,37 +118,21 @@ public class AdminService {
 
     public void editUserDetails() {
         userService.viewAllUsers();
-        
+
         try {
             String targetUsername = inputHandler.getNonEmptyInput("\nEnter username of user to edit: ");
             User user = userService.findUserByUsername(targetUsername);
-            
+
             if (user == null) {
                 System.out.println("User not found.");
                 return;
             }
-            
+
             System.out.println("Current username: " + user.getUsername());
             System.out.println("Current email: " + user.getEmail());
-            
-            String newUsername = user.getUsername();
-            String newEmail = user.getEmail();
-            String newPassword = null;
-            
-            if (inputHandler.getYesNoInput("Update username? (yes/no): ")) {
-                newUsername = inputHandler.getNonEmptyInput("Enter new username: ");
-            }
-            
-            if (inputHandler.getYesNoInput("Update email? (yes/no): ")) {
-                newEmail = inputHandler.getNonEmptyInput("Enter new email: ");
-            }
-            
-            if (inputHandler.getYesNoInput("Update password? (yes/no): ")) {
-                newPassword = inputHandler.getNonEmptyInput("Enter new password: ");
-            }
-            
-            user.updateUserInfo(newUsername, newEmail, newPassword);
-            System.out.println("User details updated.");
+
+            // Use AccountUpdateService to handle the update process
+            accountUpdateService.updateAccount(user, users);
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
         }

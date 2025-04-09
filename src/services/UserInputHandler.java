@@ -2,14 +2,14 @@ package services;
 
 import java.util.Scanner;
 
-public class UserInputHandler {
-    
+public class UserInputHandler implements IUserInputHandler {
     private final Scanner scanner;
 
     public UserInputHandler(Scanner scanner) {
         this.scanner = scanner;
     }
 
+    @Override
     public String getNonEmptyInput(String prompt) {
         while (true) {
             try {
@@ -27,6 +27,7 @@ public class UserInputHandler {
         }
     }
 
+    @Override
     public String getInput(String prompt) {
         try {
             System.out.print(prompt);
@@ -37,6 +38,7 @@ public class UserInputHandler {
         }
     }
 
+    @Override
     public boolean getYesNoInput(String prompt) {
         while (true) {
             try {
@@ -55,6 +57,7 @@ public class UserInputHandler {
         }
     }
 
+    @Override
     public int getValidIntegerInput(String prompt, int min, int max) {
         while (true) {
             try {

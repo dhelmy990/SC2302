@@ -1,9 +1,9 @@
 package users;
 
 public abstract class User {
-    protected String username;
-    protected String email;
-    protected String password;
+    private String username;
+    private String email;
+    private String password;
 
     public User(String username, String email, String password) {
         this.username = username;
@@ -33,6 +33,9 @@ public abstract class User {
     public void displayUserInfo() {
         System.out.println("Username: " + username);
         System.out.println("Email: " + email);
+    }
+    public String getPassword() {
+        return password;
     }
 
 }
