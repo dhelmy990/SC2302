@@ -1,18 +1,26 @@
 package services;
 import java.util.*;
-import queue.QueueManager;
+import queue.*;
 import inventory.Item;
 import orders.*;
 import stalls.*;
 import transactions.TxnManager;
-import utils.OrderUtils;
 
 
 public class OrderService {
     private final OrderManager orderManager;
     private final TxnManager txnManager;
-    private final IQueueService queueservice;
+    private final IQueueService queueService;
     protected final IStallService stallService;
+
+    public OrderService(OrderManager orderManager, 
+            IQueueService queueservice, TxnManager txnManager,
+            IStallService stallService) {
+        this.orderManager = orderManager;
+        this.txnManager = txnManager;
+        this.stallService = stallService;
+        this.queueService = queueservice;
+    }
     
     public TxnManager getTxnManagerInstance(){
         return txnManager;
@@ -22,26 +30,18 @@ public class OrderService {
         return orderManager;
     }
 
-    public QueueManager getQueueManagerInstance(){
-        return queueManager;
+    public IQueueService getQueueServiceInstance(){
+        return queueService;
     }
 
-    public OrderService(OrderManager orderManager, 
-            IQueueService queueservice, TxnManager txnManager,
-            IStallService stallService) {
-        this.orderManager = orderManager;
-        this.txnManager = txnManager;
-        this.stallService = stallService;
-        this.queueservice = queueservice;
-    }
     public int placeOrder(String stallName, Order order) {
-        int estTime = queueservice.enqueueOrder(stallName, order);
+        int estTime = queueService.enqueueOrder(stallName, order);
         orderManager.addOrder(order);
 
         return estTime;
     }
     public List<Order> getCancellableOrders(String username) {
-        return queueservice.getOrdersByUser(username).stream()
+        return queueService.getOrdersByUser(username).stream()
             .filter(Order::isPreparing)
             .toList();
     }
@@ -54,14 +54,14 @@ public class OrderService {
     }
 
     public Order cancelOrder(String username, int orderId) {
-        String stallName = queueservice.getStallNameForOrder(orderId);
+        String stallName = queueService.getStallNameForOrder(orderId);
         if (stallName == null || stallName.isEmpty()) {
             System.out.println("Order not found.");
             return null;
         }
 
         // Get the queue for the stall
-        List<Order> stallQueue = queueservice.getAllOrdersForStall(stallName);
+        List<Order> stallQueue = queueService.getAllOrdersForStall(stallName);
 
         Iterator<Order> iterator = stallQueue.iterator();
         while (iterator.hasNext()) {

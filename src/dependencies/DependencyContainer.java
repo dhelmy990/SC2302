@@ -3,21 +3,12 @@ package dependencies;
 import java.util.*;
 import canteen.CanteenManager;
 import orders.OrderManager;
-import queue.QueueManager;
-import queue.QueueService;
-import queue.StallOrderService;
-import queue.UserOrderService;
-import services.AdminService;
-import services.OrderService;
-import services.StallManagementService;
-import services.UserManagementService;
-import services.UserInputHandler;
+import queue.*;
+import services.*;
 import simulated.SimulatedData;
 import stalls.Stall;
 import transactions.TxnManager;
 import users.User;
-import services.UserFactory;
-import queue.CompletionService;
 
 
 public class DependencyContainer {
@@ -25,6 +16,7 @@ public class DependencyContainer {
     private final OrderService orderService;
     private final CanteenManager canteenManager;
     private final AdminService adminService;
+    private final CompletionService completionService;
 
     // Simulation Data
     private final List<Stall> stalls;
@@ -36,9 +28,9 @@ public class DependencyContainer {
     public DependencyContainer(){
         OrderManager orderManager = new OrderManager();
         TxnManager txnManager = new TxnManager();
-        QueueManager queueManager = new QueueManager();
+        QueueService queueService = new QueueService();
         this.canteenManager = new CanteenManager();
-        this.orderService = new OrderService(orderManager, queueManager, txnManager, canteenManager);
+        this.orderService = new OrderService(orderManager, queueService, txnManager, canteenManager);
         // Load simulated data
         this.stalls = SimulatedData.getSampleStalls();
         this.users = SimulatedData.getSampleUsers(canteenManager);
@@ -46,6 +38,7 @@ public class DependencyContainer {
         StallManagementService stallManagementService = new StallManagementService(stalls);
         UserManagementService userManagementService = new UserManagementService(users, stallManagementService);
         this.adminService = new AdminService(userManagementService, stallManagementService, userInputHandler);
+        this.completionService = new CompletionService(queueService);
     }
 
     public CanteenManager getCanteenManagerInstance(){
@@ -60,6 +53,10 @@ public class DependencyContainer {
         return adminService;
     }
 
+    public CompletionService getCompletionServiceInstance(){
+        return completionService;
+    }
+
     public List<Stall> getStalls(){
         return stalls;
     }
@@ -67,11 +64,5 @@ public class DependencyContainer {
     public List<User> getUsers(){
         return users;
     }
-
-
-    public final OrderService orderService = new OrderService(
-            orderManager, queueService, txnManager, canteenManager);
-    public final QueueManager queueManager = new QueueManager(queueService, completionService, userOrderService, stallOrderService
-    );
 
 }

@@ -52,7 +52,7 @@ public class AuthenticationService {
         String password = scanner.nextLine();
 
         switch (role.toLowerCase()) {
-            case "diner" -> users.add(new Diner(username, email, password, null)); // Pass required dependencies here
+            case "diner" -> users.add(new Diner(username, email, password));
             case "owner" -> users.add(new Owner(username, email, password));
             default -> {
                 System.out.println("Invalid role.");

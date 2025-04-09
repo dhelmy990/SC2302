@@ -1,7 +1,5 @@
 package queue;
 
-import java.util.Map;
-
 public class QueueManager {
     private static QueueManager instance;
     private final IQueueService queueService;

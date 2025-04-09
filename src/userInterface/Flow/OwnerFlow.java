@@ -7,7 +7,6 @@ import inventory.Item;
 import userInterface.Menu.*;
 import orders.Order;
 import queue.IQueueService;
-import queue.QueueManager;
 import stalls.Stall;
 import transactions.Transaction;
 import utils.*;

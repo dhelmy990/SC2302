@@ -1,12 +1,10 @@
 package queue;
 
 import java.util.*;
-import java.util.stream.Collectors;
 import orders.Order;
+
 public class QueueService implements IQueueService {
     private final Map<String, Queue<Order>> stallQueues = new HashMap<>();
-
-
 
     @Override
     public int enqueueOrder(String stallName, Order order) {
