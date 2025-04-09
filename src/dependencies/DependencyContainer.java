@@ -11,7 +11,6 @@ import transactions.TxnManager;
 import users.User;
 
 public class DependencyContainer {
-
     
     private final OrderService orderService;
     private final CanteenManager canteenManager;

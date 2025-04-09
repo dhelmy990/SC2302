@@ -1,4 +1,3 @@
-package userInterface;
 import dependencies.*;
 import java.util.*;
 import services.*;
@@ -15,11 +14,10 @@ public class Runner {
     public static final List<Stall> stalls = dependencies.getStalls();
     public static final IStallService canteenManager = dependencies.getCanteenManagerInstance();
     public static final List<User> users = dependencies.getUsers();
-
     public static final OrderService orderService = dependencies.getOrderServiceInstance();
     public static final AdminService adminService = dependencies.getAdminService();
-    public static final WelcomeMenu welcomeMenu = new WelcomeMenu();
 
+    // Initalise Controllers
     public static final DinerFlow dinerFlow = new DinerFlow(dependencies);
     public static final OwnerFlow ownerFlow = new OwnerFlow(dependencies);
     public static final GuestFlow guestFlow = new GuestFlow(dependencies);
@@ -28,6 +26,7 @@ public class Runner {
         UserInputHandler inputHandler = dependencies.userInputHandler; // Use UserInputHandler
 
         while (true) {
+            WelcomeMenu welcomeMenu = new WelcomeMenu();
             welcomeMenu.display();
             int choice = inputHandler.getValidIntegerInput("Choose an option: ", 1, 4); // Use the new method
             switch (choice) {
