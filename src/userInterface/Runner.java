@@ -1,31 +1,24 @@
 package userInterface;
 import dependencies.*;
 import java.util.*;
-import orders.OrderManager;
-import services.AdminService;
-import services.OrderService;
-import services.UserInputHandler;
+import services.*;
 import stalls.*;
-import transactions.TxnManager;
-import userInterface.Flow.AdminFlow;
-import userInterface.Flow.DinerFlow;
-import userInterface.Flow.GuestFlow;
-import userInterface.Flow.OwnerFlow;
+import userInterface.Flow.*;
 import userInterface.Menu.*;
 import users.*;
 
 public class Runner {
 
     private static final DependencyContainer dependencies = new DependencyContainer();
+    // Unpack Dependencies
     public static final Scanner scanner = dependencies.scanner;
-    public static final List<Stall> stalls = dependencies.stalls;
-    public static final OrderManager orderManager = dependencies.orderManager;
-    public static final TxnManager txnManager = dependencies.txnManager;
-    public static final IStallService canteenManager = dependencies.canteenManager;
-    public static final List<User> users = dependencies.users;
-    public static final OrderService orderService = dependencies.orderService;
-    public static final AdminService adminService = dependencies.adminService;
-    public static final WelcomeMenu welcomeMenu = dependencies.welcomeMenu;
+    public static final List<Stall> stalls = dependencies.getStalls();
+    public static final IStallService canteenManager = dependencies.getCanteenManagerInstance();
+    public static final List<User> users = dependencies.getUsers();
+
+    public static final OrderService orderService = dependencies.getOrderServiceInstance();
+    public static final AdminService adminService = dependencies.getAdminService();
+    public static final WelcomeMenu welcomeMenu = new WelcomeMenu();
 
     public static final DinerFlow dinerFlow = new DinerFlow(dependencies);
     public static final OwnerFlow ownerFlow = new OwnerFlow(dependencies);
@@ -44,7 +37,7 @@ public class Runner {
                     String guestId = "guest_" + UUID.randomUUID().toString();
                     System.out.println("\nContinuing as Guest Diner...");
                     System.out.println("Your Guest ID (for tracking): " + guestId);
-                    Diner dummyUser = new Diner(guestId, "None", "None", canteenManager);
+                    Diner dummyUser = new Diner(guestId, "None", "None");
                     guestFlow.run(dummyUser);
                 }
                 case 4 -> {
@@ -118,7 +111,7 @@ public class Runner {
             String password = inputHandler.getNonEmptyInput("Enter password: ");
 
             switch (role.toLowerCase()) {
-                case "diner" -> users.add(new Diner(username, email, password, canteenManager));
+                case "diner" -> users.add(new Diner(username, email, password));
                 case "owner" -> users.add(new Owner(username, email, password));
                 default -> {
                     System.out.println("Invalid role.");

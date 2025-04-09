@@ -27,7 +27,7 @@ public class UserManagementService {
             return;
         }
 
-        if (userToRemove instanceof Owner owner) {
+        if (userToRemove instanceof Owner) {
             stallService.detachOwnerFromStalls(username);
         }
 

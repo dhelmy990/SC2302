@@ -1,7 +1,6 @@
 package services;
 
 import stalls.*;
-import users.*;
 import java.util.*;
 
 public class StallManagementService {

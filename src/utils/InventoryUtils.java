@@ -2,7 +2,6 @@ package utils;
 
 import inventory.Inventory;
 import inventory.Item;
-import java.util.List;
 
 public class InventoryUtils {
     private InventoryUtils() {

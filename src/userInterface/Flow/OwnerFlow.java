@@ -38,13 +38,11 @@ public class OwnerFlow extends Flow{
 
             switch (choice) {
                 case 1 -> ItemUtils.displayInventory(stall.getInventory().getAllItems());
-
                 case 2 -> {
                     Item newItem = ItemInputUtils.createItemFromInput(scanner);
                     stall.getInventory().addItem(newItem);
                     System.out.println("Item added.");
                 }
-
                 case 3 -> new ItemUpdateService(scanner).update(stall.getInventory());
                 case 4 -> new ItemDeleteService(scanner).delete(stall.getInventory());
                 case 5 -> {
@@ -64,8 +62,6 @@ public class OwnerFlow extends Flow{
                         }
                     }
                 }
-                
-
                 case 6 -> {
                     List<Order> orders = QueueManager.getInstance().getAllOrdersForStall(stall.getName());
                     List<Order> cookingOrders = new ArrayList<>();
@@ -104,7 +100,7 @@ public class OwnerFlow extends Flow{
                 
                             boolean updated = QueueManager.getInstance().markOrderCompleted(stall.getName(), orderId);
                             if (updated) {
-                                txnManager.updateStatusForOrder(orderId, "Completed");
+                                orderService.getTxnManagerInstance().updateStatusForOrder(orderId, "Completed");
                                 System.out.println("Order marked as completed.");
                             } else {
                                 System.out.println("Order could not be updated.");
@@ -115,22 +111,19 @@ public class OwnerFlow extends Flow{
                         }
                     }
                 }
-                
-
                 case 7 -> showTransactionsForStall(stall.getName());
                 case 8 -> UserUtils.handleAccountUpdate(owner, scanner);
                 case 9 -> {
                     System.out.println("Logging out...");
                     return;
                 }
-
                 default -> System.out.println("Invalid choice.");
             }
         }
     }
 
     private void showTransactionsForStall(String stallName) {
-        List<Transaction> transactions = txnManager.getAllTransactions();
+        List<Transaction> transactions = orderService.getTxnManagerInstance().getAllTransactions();
         boolean found = false;
         for (Transaction txn : transactions) {
             if (txn.getStallName().equals(stallName)) {

@@ -3,6 +3,7 @@ package services;
 import java.util.Scanner;
 
 public class UserInputHandler {
+    
     private final Scanner scanner;
 
     public UserInputHandler(Scanner scanner) {

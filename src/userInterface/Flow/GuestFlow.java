@@ -32,7 +32,7 @@ public class GuestFlow extends Flow {
                     case 2 -> {
                         System.out.print("Enter your Guest ID: ");
                         String guestIdInput = scanner.nextLine();
-                        List<Order> guestOrders = orderManager.getOrdersByUser(guestIdInput);
+                        List<Order> guestOrders = orderService.getOrderManagerInstance().getOrdersByUser(guestIdInput);
                         if (guestOrders.isEmpty()) {
                             System.out.println("No orders found for guest ID: " + guestIdInput);
                         } else {

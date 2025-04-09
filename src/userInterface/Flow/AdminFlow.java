@@ -41,7 +41,7 @@ public class AdminFlow extends Flow {
                 case 7 -> adminService.reassignStallToNewOwner();
                 case 8 -> adminService.removeUser();
                 case 9 -> adminService.removeStall();
-                case 10 -> txnManager.displayAllTransactions();
+                case 10 -> orderService.getTxnManagerInstance().displayAllTransactions();
                 case 11 -> UserUtils.handleAccountUpdate(admin, scanner);
                 case 12 -> {
                     System.out.println("Logging out...");

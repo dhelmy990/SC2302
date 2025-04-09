@@ -106,7 +106,7 @@ public class OrderFlow extends Flow {
         Order order = new Order(username, selectedItems, selectedStall.getName());
         order.setPaymentMethod(paymentMethod);
 
-        txnManager.recordTransaction(selectedStall.getName(), order);
+        orderService.getTxnManagerInstance().recordTransaction(selectedStall.getName(), order);
         int waitTime = orderService.placeOrder(selectedStall.getName(), order);
 
         if (waitTime >= 0) {

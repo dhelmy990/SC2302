@@ -1,15 +1,9 @@
 package services;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
-import java.util.Scanner;
+import java.util.*;
 import queue.QueueManager;
 import inventory.Item;
 import orders.*;
-import stalls.IStallService;
-import stalls.Stall;
+import stalls.*;
 import transactions.TxnManager;
 import utils.OrderUtils;
 
@@ -17,8 +11,20 @@ import utils.OrderUtils;
 public class OrderService {
     private final OrderManager orderManager;
     private final TxnManager txnManager;
-    private final IStallService stallService;
     private final QueueManager queueManager;
+    protected final IStallService stallService;
+    
+    public TxnManager getTxnManagerInstance(){
+        return txnManager;
+    }
+
+    public OrderManager getOrderManagerInstance(){
+        return orderManager;
+    }
+
+    public QueueManager getQueueManagerInstance(){
+        return queueManager;
+    }
 
     public OrderService(OrderManager orderManager, QueueManager queueManager2, TxnManager txnManager, IStallService stallService) {
         this.orderManager = orderManager;

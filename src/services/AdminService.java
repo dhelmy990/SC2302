@@ -2,22 +2,18 @@ package services;
 
 import users.*;
 import stalls.*;
-import java.util.*;
 
 public class AdminService {
     private final UserManagementService userService;
     private final StallManagementService stallService;
     private final UserInputHandler inputHandler;
-    private final UserFactory userFactory;
 
     public AdminService(UserManagementService userService,
                         StallManagementService stallService,
-                        UserInputHandler inputHandler,
-                        UserFactory userFactory) {
+                        UserInputHandler inputHandler) {
         this.userService = userService;
         this.stallService = stallService;
         this.inputHandler = inputHandler;
-        this.userFactory = userFactory;
     }
 
     public void viewAllUsers() {
@@ -71,7 +67,7 @@ public class AdminService {
             String password = inputHandler.getNonEmptyInput("Enter password: ");
             String role = inputHandler.getNonEmptyInput("Enter role (diner/owner/admin): ");
 
-            User newUser = userFactory.createUser(username, email, password, role);
+            User newUser = UserFactory.createUser(username, email, password, role);
             userService.addUser(newUser);
             System.out.println("User added successfully.");
         } catch (IllegalArgumentException e) {

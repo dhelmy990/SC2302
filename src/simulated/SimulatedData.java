@@ -38,7 +38,7 @@ public class SimulatedData {
         }
 
         // Add users
-        users.add(new Diner("diner1", "diner1@email.com", "1234", stallService));
+        users.add(new Diner("diner1", "diner1@email.com", "1234"));
         users.add(owner1);
         users.add(owner2);
         users.add(new Admin("admin1", "admin1@email.com", "adminpass"));
