@@ -1,54 +1,42 @@
 package userInterface;
-import dependencies.*;
+
+import dependencies.DependencyContainer;
 import orders.OrderManager;
 import services.AdminService;
+import services.AuthenticationService;
+import services.GuestUserService;
 import services.OrderService;
-import java.util.*;
-import services.AdminService;
-import stalls.*;
+import stalls.IStallService;
 import transactions.TxnManager;
-import userInterface.Flow.AdminFlow;
-import userInterface.Flow.DinerFlow;
-import userInterface.Flow.GuestFlow;
-import userInterface.Flow.OwnerFlow;
-import userInterface.Menu.*;
+import userInterface.Flow.*;
 import users.*;
 import queue.CompletionService;
 import queue.QueueService;
 
+import java.util.*;
+
 public class Runner {
 
     private static final DependencyContainer dependencies = new DependencyContainer();
-    public static final Scanner scanner = dependencies.scanner;
-    public static final List<Stall> stalls = dependencies.stalls;
-    public static final OrderManager orderManager = dependencies.orderManager;
-    public static final TxnManager txnManager = dependencies.txnManager;
-    public static final IStallService canteenManager = dependencies.canteenManager;
-    public static final List<User> users = dependencies.users;
-    public static final OrderService orderService = dependencies.orderService;
-    public static final AdminService adminService = dependencies.adminService;
-    public static final WelcomeMenu welcomeMenu = dependencies.welcomeMenu;
-    public static final QueueService queueService = dependencies.queueService;
-    public static final CompletionService completionService = dependencies.completionService;
-    public static final DinerFlow dinerFlow = new DinerFlow(dependencies);
-    public static final OwnerFlow ownerFlow = new OwnerFlow(dependencies, queueService, completionService);
-    public static final GuestFlow guestFlow = new GuestFlow(dependencies);
-    public static final AdminFlow adminFlow = new AdminFlow(dependencies);
+    private static final Scanner scanner = dependencies.scanner;
+    private static final List<User> users = dependencies.users;
+    private static final AuthenticationService authService = new AuthenticationService(users, scanner);
+    private static final GuestUserService guestUserService = new GuestUserService(dependencies.canteenManager);
+    private static final DinerFlow dinerFlow = new DinerFlow(dependencies);
+    private static final OwnerFlow ownerFlow = new OwnerFlow(dependencies, dependencies.queueService, dependencies.completionService);
+    private static final GuestFlow guestFlow = new GuestFlow(dependencies);
+    private static final AdminFlow adminFlow = new AdminFlow(dependencies);
+
     public static void main(String[] args) {
         while (true) {
-            welcomeMenu.display();
+            dependencies.welcomeMenu.display();
             int choice = scanner.nextInt();
             scanner.nextLine();
+
             switch (choice) {
-                case 1 -> login();
-                case 2 -> signUp();
-                case 3 -> {
-                    String guestId = "guest_" + UUID.randomUUID().toString();
-                    System.out.println("\nContinuing as Guest Diner...");
-                    System.out.println("Your Guest ID (for tracking): " + guestId);
-                    Diner dummyUser = new Diner(guestId, "None", "None", canteenManager);
-                    guestFlow.run(dummyUser);
-                }
+                case 1 -> handleLogin();
+                case 2 -> authService.signUp();
+                case 3 -> handleGuestFlow();
                 case 4 -> {
                     System.out.println("Exiting. Goodbye!");
                     return;
@@ -58,57 +46,19 @@ public class Runner {
         }
     }
 
-    private static void login() {
-        System.out.print("Enter username: ");
-        String username = scanner.nextLine();
-        System.out.print("Enter password: ");
-        String password = scanner.nextLine();
-
-        for (User user : users) {
-            if (user.login(username, password)) {
-                System.out.println("Login successful as " + user.getRole());
-                switch (user.getRole()) {
-                    case "Diner" -> dinerFlow.run(user);
-                    case "Owner" -> ownerFlow.run(user);
-                    case "Admin" -> adminFlow.run(user);
-                }
-                return;
+    private static void handleLogin() {
+        User user = authService.login();
+        if (user != null) {
+            switch (user.getRole()) {
+                case "Diner" -> dinerFlow.run(user);
+                case "Owner" -> ownerFlow.run(user);
+                case "Admin" -> adminFlow.run(user);
             }
         }
-        System.out.println("Login failed. Incorrect credentials.");
     }
 
-    private static void signUp() {
-        System.out.print("Choose role (diner/owner): ");
-        String role = scanner.nextLine();
-        System.out.print("Enter username: ");
-        String username = scanner.nextLine();
-        System.out.print("Enter email: ");
-        String email = scanner.nextLine();
-    
-        for (User u : users) {
-            if (u.getUsername().equalsIgnoreCase(username)) {
-                System.out.println("Username already exists.");
-                return;
-            }
-            if (u.getEmail().equalsIgnoreCase(email)) {
-                System.out.println("Email already in use.");
-                return;
-            }
-        }
-    
-        System.out.print("Enter password: ");
-        String password = scanner.nextLine();
-    
-        switch (role.toLowerCase()) {
-            case "diner" -> users.add(new Diner(username, email, password, canteenManager));
-            case "owner" -> users.add(new Owner(username, email, password));
-            default -> {
-                System.out.println("Invalid role.");
-                return;
-            }
-        }
-    
-        System.out.println("Account created successfully. You may now log in.");
+    private static void handleGuestFlow() {
+        Diner dummyUser = guestUserService.createGuestUser();
+        guestFlow.run(dummyUser);
     }
 }
