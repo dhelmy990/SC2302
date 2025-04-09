@@ -4,9 +4,13 @@ import orders.OrderManager;
 import services.AdminService;
 import services.OrderService;
 import java.util.*;
-import userInterface.Flow.*;
+import services.AdminService;
 import stalls.*;
 import transactions.TxnManager;
+import userInterface.Flow.AdminFlow;
+import userInterface.Flow.DinerFlow;
+import userInterface.Flow.GuestFlow;
+import userInterface.Flow.OwnerFlow;
 import userInterface.Menu.*;
 import users.*;
 
@@ -25,9 +29,8 @@ public class Runner {
 
     public static final DinerFlow dinerFlow = new DinerFlow(dependencies);
     public static final OwnerFlow ownerFlow = new OwnerFlow(dependencies);
-    public static final AdminFlow adminFlow = new AdminFlow(dependencies);
     public static final GuestFlow guestFlow = new GuestFlow(dependencies);
-    
+    public static final AdminFlow adminFlow = new AdminFlow(dependencies);
     public static void main(String[] args) {
         while (true) {
             welcomeMenu.display();

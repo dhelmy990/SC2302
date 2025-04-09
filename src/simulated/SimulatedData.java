@@ -32,7 +32,7 @@ public class SimulatedData {
         owner2.setManagedStall(s2);
         globalStalls.add(s2);
 
-        // Optional global stall registration (e.g., used by IStallService)
+        
         if (stallService instanceof CanteenManager cm) {
             globalStalls.forEach(cm::addStall);
         }

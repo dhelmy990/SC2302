@@ -32,21 +32,22 @@ public class AdminFlow extends Flow {
             scanner.nextLine();
 
             switch (choice) {
-                case 1 -> adminService.addNewUser(scanner, canteenManager);
-                case 2 -> adminService.addNewStall(scanner);
+                case 1 -> adminService.addNewUser();
+                case 2 -> adminService.addNewStall();
                 case 3 -> adminService.viewAllUsers();
                 case 4 -> adminService.viewAllStalls();
-                case 5 -> adminService.editUserDetails(scanner);
-                case 6 -> adminService.editStallDetails(scanner);
-                case 7 -> adminService.reassignStallToNewOwner(scanner, users);
-                case 8 -> adminService.removeUser(scanner);
-                case 9 -> adminService.removeStall(scanner);
+                case 5 -> adminService.editUserDetails();
+                case 6 -> adminService.editStallDetails();
+                case 7 -> adminService.reassignStallToNewOwner();
+                case 8 -> adminService.removeUser();
+                case 9 -> adminService.removeStall();
                 case 10 -> txnManager.displayAllTransactions();
                 case 11 -> UserUtils.handleAccountUpdate(admin, scanner);
                 case 12 -> {
                     System.out.println("Logging out...");
                     return;
                 }
+                default -> System.out.println("Invalid choice. Please try again.");
             }
         }
     }
