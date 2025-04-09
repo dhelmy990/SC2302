@@ -6,19 +6,26 @@ import dependencies.DependencyContainer;
 import inventory.Item;
 import userInterface.Menu.*;
 import orders.Order;
+import queue.IQueueService;
 import queue.QueueManager;
 import stalls.Stall;
 import transactions.Transaction;
 import utils.*;
 import services.ItemUpdateService;
 import services.ItemDeleteService;
+import queue.CompletionService;
 
 public class OwnerFlow extends Flow{
 
     OwnerMainMenu ownerMainMenu = new OwnerMainMenu();
+    private final IQueueService queueService;
+    private final CompletionService completionService;
 
-    public OwnerFlow(DependencyContainer dependencies){
+    public OwnerFlow(DependencyContainer dependencies, IQueueService queueService,
+            CompletionService completionService) {
         super(dependencies);
+        this.queueService = queueService;
+        this.completionService = completionService;
     }
 
     @Override
@@ -46,7 +53,7 @@ public class OwnerFlow extends Flow{
                 case 3 -> new ItemUpdateService(scanner).update(stall.getInventory());
                 case 4 -> new ItemDeleteService(scanner).delete(stall.getInventory());
                 case 5 -> {
-                    List<Order> orders = QueueManager.getInstance().getAllOrdersForStall(stall.getName());
+                    List<Order> orders = queueService.getAllOrdersForStall(stall.getName());
                     if (orders.isEmpty()) {
                         System.out.println("No current orders.");
                     } else {
@@ -63,25 +70,25 @@ public class OwnerFlow extends Flow{
                     }
                 }
                 case 6 -> {
-                    List<Order> orders = QueueManager.getInstance().getAllOrdersForStall(stall.getName());
+                    List<Order> orders = queueService.getAllOrdersForStall(stall.getName());
                     List<Order> cookingOrders = new ArrayList<>();
-                
+
                     for (Order o : orders) {
                         if (o.isCooking()) {
                             cookingOrders.add(o);
                         }
                     }
-                
+
                     if (cookingOrders.isEmpty()) {
                         System.out.println("No Cooking orders to mark as completed.");
                         break;
                     }
-                
+
                     System.out.println("\n--- Cooking Orders ---");
                     for (Order o : cookingOrders) {
-                        OrderUtils.displayOrderSummary(o, false, false); 
+                        OrderUtils.displayOrderSummary(o, false, false);
                     }
-                
+
                     while (true) {
                         System.out.print("Enter Order ID to mark as completed or type exit to quit: ");
                         String input = scanner.nextLine();
@@ -91,21 +98,22 @@ public class OwnerFlow extends Flow{
                         }
                         try {
                             int orderId = Integer.parseInt(input);
-                
+
                             boolean found = cookingOrders.stream().anyMatch(o -> o.getID() == orderId);
                             if (!found) {
                                 System.out.println("Invalid Order ID. Please choose from the list above.");
                                 continue;
                             }
-                
-                            boolean updated = QueueManager.getInstance().markOrderCompleted(stall.getName(), orderId);
+
+                            // Use CompletionService to mark the order as completed
+                            boolean updated = completionService.markOrderCompleted(stall.getName(), orderId);
                             if (updated) {
                                 orderService.getTxnManagerInstance().updateStatusForOrder(orderId, "Completed");
                                 System.out.println("Order marked as completed.");
                             } else {
                                 System.out.println("Order could not be updated.");
                             }
-                            break; 
+                            break;
                         } catch (NumberFormatException e) {
                             System.out.println("Invalid input. Please enter a valid number.");
                         }

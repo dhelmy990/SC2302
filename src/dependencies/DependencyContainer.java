@@ -4,11 +4,21 @@ import java.util.*;
 import canteen.CanteenManager;
 import orders.OrderManager;
 import queue.QueueManager;
-import services.*;
+import queue.QueueService;
+import queue.StallOrderService;
+import queue.UserOrderService;
+import services.AdminService;
+import services.OrderService;
+import services.StallManagementService;
+import services.UserManagementService;
+import services.UserInputHandler;
 import simulated.SimulatedData;
 import stalls.Stall;
 import transactions.TxnManager;
 import users.User;
+import services.UserFactory;
+import queue.CompletionService;
+
 
 public class DependencyContainer {
     
@@ -59,5 +69,9 @@ public class DependencyContainer {
     }
 
 
+    public final OrderService orderService = new OrderService(
+            orderManager, queueService, txnManager, canteenManager);
+    public final QueueManager queueManager = new QueueManager(queueService, completionService, userOrderService, stallOrderService
+    );
 
 }

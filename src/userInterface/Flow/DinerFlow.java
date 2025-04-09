@@ -71,7 +71,7 @@ public class DinerFlow extends Flow{
                 }
 
                 case 3 -> {
-                    if (!orderService.handleOrderCancellationFlow(diner.getUsername(), scanner)) {
+                    if (!orderFlow.handleOrderCancellationFlow(diner.getUsername())) {
                         System.out.println("Order not found or cannot be cancelled.");
                     }
                 }
