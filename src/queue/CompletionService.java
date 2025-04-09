@@ -1,26 +1,19 @@
 package queue;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Iterator;
-
+import java.util.*;
 import orders.Order;
 
-public class CompletionService implements ICompletionService{
+public class CompletionService implements ICompletionService {
     private final Map<String, List<Order>> completedOrders = new HashMap<>();
-    private final QueueService queueService;
+    private final IQueueService queueService;
 
-    public CompletionService() {
-        this.queueService = QueueManager.getInstance().getQueueService();
+    public CompletionService(IQueueService queueService) {
+        this.queueService = queueService;
     }
 
     @Override
     public boolean markOrderCompleted(String stallName, int orderId) {
-        Queue<Order> queue = ((QueueService) queueService).getStallQueues().get(stallName);
+        Queue<Order> queue = queueService.getStallQueues().get(stallName);
         if (queue != null) {
             Iterator<Order> it = queue.iterator();
             while (it.hasNext()) {
@@ -43,7 +36,7 @@ public class CompletionService implements ICompletionService{
     }
 
     private void updateCookingStatusForStall(String stallName) {
-        Queue<Order> queue = ((QueueService) queueService).getStallQueues().get(stallName);
+        Queue<Order> queue = queueService.getStallQueues().get(stallName);
         if (queue != null && !queue.isEmpty()) {
             Order first = queue.peek();
             if (first.isPreparing()) {

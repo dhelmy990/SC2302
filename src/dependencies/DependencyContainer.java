@@ -43,9 +43,9 @@ public class DependencyContainer {
     userFactory
 );
 public final QueueService queueService = new QueueService();
-    public final CompletionService completionService = new CompletionService();
-    public final UserOrderService userOrderService = new UserOrderService();
-    public final StallOrderService stallOrderService = new StallOrderService();
+    public final CompletionService completionService = new CompletionService(queueService);
+    public final UserOrderService userOrderService = new UserOrderService(queueService);
+    public final StallOrderService stallOrderService = new StallOrderService(queueService);
 
     public final OrderService orderService = new OrderService(
             orderManager, queueService, txnManager, canteenManager);
