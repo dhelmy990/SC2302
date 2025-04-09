@@ -1,10 +1,10 @@
 package userInterface;
 import dependencies.*;
+import java.util.*;
 import orders.OrderManager;
 import services.AdminService;
 import services.OrderService;
-import java.util.*;
-import services.AdminService;
+import services.UserInputHandler;
 import stalls.*;
 import transactions.TxnManager;
 import userInterface.Flow.AdminFlow;
@@ -32,10 +32,11 @@ public class Runner {
     public static final GuestFlow guestFlow = new GuestFlow(dependencies);
     public static final AdminFlow adminFlow = new AdminFlow(dependencies);
     public static void main(String[] args) {
+        UserInputHandler inputHandler = dependencies.userInputHandler; // Use UserInputHandler
+
         while (true) {
             welcomeMenu.display();
-            int choice = scanner.nextInt();
-            scanner.nextLine();
+            int choice = inputHandler.getValidIntegerInput("Choose an option: ", 1, 4); // Use the new method
             switch (choice) {
                 case 1 -> login();
                 case 2 -> signUp();
@@ -56,56 +57,83 @@ public class Runner {
     }
 
     private static void login() {
-        System.out.print("Enter username: ");
-        String username = scanner.nextLine();
-        System.out.print("Enter password: ");
-        String password = scanner.nextLine();
+        UserInputHandler inputHandler = dependencies.userInputHandler; // Use UserInputHandler
 
-        for (User user : users) {
-            if (user.login(username, password)) {
-                System.out.println("Login successful as " + user.getRole());
-                switch (user.getRole()) {
-                    case "Diner" -> dinerFlow.run(user);
-                    case "Owner" -> ownerFlow.run(user);
-                    case "Admin" -> adminFlow.run(user);
+        for (int attempt = 1; attempt <= 2; attempt++) { // Allow up to 2 attempts
+            String username = inputHandler.getNonEmptyInput("Enter username: ");
+            String password = inputHandler.getNonEmptyInput("Enter password: ");
+
+            for (User user : users) {
+                if (user.login(username, password)) {
+                    System.out.println("Login successful as " + user.getRole());
+                    switch (user.getRole()) {
+                        case "Diner" -> dinerFlow.run(user);
+                        case "Owner" -> ownerFlow.run(user);
+                        case "Admin" -> adminFlow.run(user);
+                    }
+                    return; // Exit the method after successful login
                 }
-                return;
+            }
+
+            if (attempt == 1) {
+                System.out.println("Login failed. Try again.");
+            } else {
+                System.out.println("Login failed. Returning to the main menu.");
             }
         }
-        System.out.println("Login failed. Incorrect credentials.");
     }
 
     private static void signUp() {
-        System.out.print("Choose role (diner/owner): ");
-        String role = scanner.nextLine();
-        System.out.print("Enter username: ");
-        String username = scanner.nextLine();
-        System.out.print("Enter email: ");
-        String email = scanner.nextLine();
-    
-        for (User u : users) {
-            if (u.getUsername().equalsIgnoreCase(username)) {
-                System.out.println("Username already exists.");
-                return;
+        UserInputHandler inputHandler = dependencies.userInputHandler; // Use UserInputHandler
+
+        for (int attempt = 1; attempt <= 2; attempt++) { // Allow up to 2 attempts
+            String role = inputHandler.getNonEmptyInput("Choose role (diner/owner): ");
+            String username = inputHandler.getNonEmptyInput("Enter username: ");
+            String email = inputHandler.getNonEmptyInput("Enter email: ");
+
+            boolean duplicateFound = false;
+            for (User u : users) {
+                if (u.getUsername().equalsIgnoreCase(username)) {
+                    System.out.println("Username already exists.");
+                    duplicateFound = true;
+                    break;
+                }
+                if (u.getEmail().equalsIgnoreCase(email)) {
+                    System.out.println("Email already in use.");
+                    duplicateFound = true;
+                    break;
+                }
             }
-            if (u.getEmail().equalsIgnoreCase(email)) {
-                System.out.println("Email already in use.");
-                return;
+
+            if (duplicateFound) {
+                if (attempt == 1) {
+                    System.out.println("Try again.");
+                    continue; // Retry the operation
+                } else {
+                    System.out.println("Sign-up failed. Returning to the main menu.");
+                    return; // Exit after the second failed attempt
+                }
             }
+
+            String password = inputHandler.getNonEmptyInput("Enter password: ");
+
+            switch (role.toLowerCase()) {
+                case "diner" -> users.add(new Diner(username, email, password, canteenManager));
+                case "owner" -> users.add(new Owner(username, email, password));
+                default -> {
+                    System.out.println("Invalid role.");
+                    if (attempt == 1) {
+                        System.out.println("Try again.");
+                        continue; // Retry the operation
+                    } else {
+                        System.out.println("Sign-up failed. Returning to the main menu.");
+                        return; // Exit after the second failed attempt
+                    }
+                }
+            }
+
+            System.out.println("Account created successfully. You may now log in.");
+            return; // Exit the method after successful sign-up
         }
-    
-        System.out.print("Enter password: ");
-        String password = scanner.nextLine();
-    
-        switch (role.toLowerCase()) {
-            case "diner" -> users.add(new Diner(username, email, password, canteenManager));
-            case "owner" -> users.add(new Owner(username, email, password));
-            default -> {
-                System.out.println("Invalid role.");
-                return;
-            }
-        }
-    
-        System.out.println("Account created successfully. You may now log in.");
     }
 }
