@@ -1,12 +1,12 @@
 package userInterface.Flow;
 
-import java.util.*;
-
 import dependencies.DependencyContainer;
 import inventory.Item;
+import java.util.*;
 import orders.Order;
 import payments.*;
 import services.PaymentService;
+import services.UserInputHandler;
 import stalls.Stall;
 import users.Diner;
 import users.User;
@@ -14,8 +14,11 @@ import utils.*;
 
 public class OrderFlow extends Flow {
 
-    OrderFlow(DependencyContainer dependencies){
+    private final UserInputHandler inputHandler; // Use UserInputHandler
+
+    OrderFlow(DependencyContainer dependencies) {
         super(dependencies);
+        this.inputHandler = dependencies.userInputHandler; // Initialize UserInputHandler
     }
 
     public void run(User user) {
@@ -25,7 +28,8 @@ public class OrderFlow extends Flow {
             System.out.println((i + 1) + ". " + stalls.get(i).getName());
         }
 
-        int stallChoice = InputUtils.getValidIntegerInput(scanner, "Select stall number: ", 1, stalls.size());
+        
+        int stallChoice = inputHandler.getValidIntegerInput("Select stall number: ", 1, stalls.size());
         Stall selectedStall = stalls.get(stallChoice - 1);
         List<Item> allItems = selectedStall.getInventory().getAllItems();
 
@@ -36,7 +40,8 @@ public class OrderFlow extends Flow {
             System.out.println("\n--- Menu ---");
             ItemUtils.displayMenu(allItems);
 
-            int itemNum = InputUtils.getValidIntegerInput(scanner, "Enter item number to add to order (0 to finish): ", 0, allItems.size());
+            
+            int itemNum = inputHandler.getValidIntegerInput("Enter item number to add to order (0 to finish): ", 0, allItems.size());
             if (itemNum == 0) break;
 
             Item chosenItem = allItems.get(itemNum - 1);
@@ -65,7 +70,8 @@ public class OrderFlow extends Flow {
         );
         System.out.println("Total Cost: $" + total);
 
-        int paymentChoice = InputUtils.getValidIntegerInput(scanner, """
+        
+        int paymentChoice = inputHandler.getValidIntegerInput("""
             Choose Payment Method:
             1. Card
             2. Cash

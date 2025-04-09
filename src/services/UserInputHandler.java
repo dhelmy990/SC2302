@@ -57,7 +57,9 @@ public class UserInputHandler {
     public int getValidIntegerInput(String prompt, int min, int max) {
         while (true) {
             try {
-                System.out.print(prompt);
+                if (!prompt.isEmpty()) { // Only display the prompt if it's not empty
+                    System.out.print(prompt);
+                }
                 String input = scanner.nextLine().trim();
                 int value = Integer.parseInt(input);
                 if (value >= min && value <= max) {
