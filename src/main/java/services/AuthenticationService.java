@@ -5,19 +5,20 @@ import java.util.List;
 
 public class AuthenticationService {
     private final List<User> users;
-    private final IUserInputHandler inputHandler;
+    private final ITextInputHandler textInputHandler;
     private final IDuplicateCheckService duplicateCheckService;
 
-    public AuthenticationService(List<User> users, IUserInputHandler inputHandler,
+    public AuthenticationService(List<User> users, 
+            ITextInputHandler textInputHandler,
             IDuplicateCheckService duplicateCheckService) {
         this.users = users;
-        this.inputHandler = inputHandler;
+        this.textInputHandler = textInputHandler;
         this.duplicateCheckService = duplicateCheckService;
     }
 
     public User login() {
-        String username = inputHandler.getNonEmptyInput("Enter username: ");
-        String password = inputHandler.getNonEmptyInput("Enter password: ");
+        String username = textInputHandler.getNonEmptyInput("Enter username: ");
+        String password = textInputHandler.getNonEmptyInput("Enter password: ");
 
         for (User user : users) {
             if (user.login(username, password)) {
@@ -32,7 +33,7 @@ public class AuthenticationService {
     public void signUp() {
         String role;
         while (true) {
-            role = inputHandler.getNonEmptyInput("Choose role (diner/owner): ").toLowerCase();
+            role = textInputHandler.getNonEmptyInput("Choose role (diner/owner): ").toLowerCase();
             if (role.equals("diner") || role.equals("owner")) {
                 break; // Exit the loop if the role is valid
             }
@@ -43,7 +44,7 @@ public class AuthenticationService {
                 input -> duplicateCheckService.isUsernameAvailable(input, null, users));
         String email = getUniqueInput("Enter email: ",
                 input -> duplicateCheckService.isEmailAvailable(input, null, users));
-        String password = inputHandler.getNonEmptyInput("Enter password: ");
+        String password = textInputHandler.getNonEmptyInput("Enter password: ");
 
         // Create the user based on the role
         User newUser;
@@ -59,7 +60,7 @@ public class AuthenticationService {
 
     private String getUniqueInput(String prompt, IFieldValidator validator) {
         while (true) {
-            String input = inputHandler.getNonEmptyInput(prompt);
+            String input = textInputHandler.getNonEmptyInput(prompt);
             if (validator.validate(input)) {
                 return input;
             }

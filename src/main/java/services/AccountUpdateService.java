@@ -5,11 +5,13 @@ import java.util.List;
 
 
 public class AccountUpdateService implements IAccountUpdateService {
-    private final IUserInputHandler inputHandler;
+    private final ITextInputHandler textInputHandler;
+    private final IBooleanInputHandler booleanInputHandler;
     private final IDuplicateCheckService duplicateCheckService;
 
-    public AccountUpdateService(IUserInputHandler inputHandler, IDuplicateCheckService duplicateCheckService) {
-        this.inputHandler = inputHandler;
+    public AccountUpdateService(ITextInputHandler textInputHandler, IBooleanInputHandler booleanInputHandler, IDuplicateCheckService duplicateCheckService) {
+        this.textInputHandler = textInputHandler;
+        this.booleanInputHandler = booleanInputHandler;
         this.duplicateCheckService = duplicateCheckService;
     }
 
@@ -18,7 +20,7 @@ public class AccountUpdateService implements IAccountUpdateService {
         System.out.println("\n--- My Account ---");
         user.displayUserInfo();
 
-        if (!inputHandler.getYesNoInput("Do you want to update your info?")) {
+        if (!booleanInputHandler.getYesNoInput("Do you want to update your info?")) {
             System.out.println("No changes made.");
             return;
         }
@@ -27,18 +29,18 @@ public class AccountUpdateService implements IAccountUpdateService {
         String newEmail = user.getEmail();
         String newPassword = user.getPassword();
 
-        if (inputHandler.getYesNoInput("Update username?")) {
+        if (booleanInputHandler.getYesNoInput("Update username?")) {
             newUsername = getUniqueInput("Enter new username: ",
                     input -> duplicateCheckService.isUsernameAvailable(input, user, users));
         }
 
-        if (inputHandler.getYesNoInput("Update email?")) {
+        if (booleanInputHandler.getYesNoInput("Update email?")) {
             newEmail = getUniqueInput("Enter new email: ",
                     input -> duplicateCheckService.isEmailAvailable(input, user, users));
         }
 
-        if (inputHandler.getYesNoInput("Update password?")) {
-            newPassword = inputHandler.getNonEmptyInput("Enter new password: ");
+        if (booleanInputHandler.getYesNoInput("Update password?")) {
+            newPassword = textInputHandler.getNonEmptyInput("Enter new password: ");
         }
 
         user.updateUserInfo(newUsername, newEmail, newPassword);
@@ -47,7 +49,7 @@ public class AccountUpdateService implements IAccountUpdateService {
 
     private String getUniqueInput(String prompt, IFieldValidator validator) {
         while (true) {
-            String input = inputHandler.getNonEmptyInput(prompt);
+            String input = textInputHandler.getNonEmptyInput(prompt);
             if (validator.validate(input)) {
                 return input;
             }

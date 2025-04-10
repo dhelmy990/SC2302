@@ -23,7 +23,9 @@ public class DependencyContainer {
     private final List<User> users;
 
     public final Scanner scanner = new Scanner(System.in);
-    public final UserInputHandler userInputHandler = new UserInputHandler(scanner);
+    private final ITextInputHandler textInputHandler;
+    private final IBooleanInputHandler booleanInputHandler;
+    private final INumericInputHandler numericInputHandler;
     private final IDuplicateCheckService duplicateCheckService;
     private final IAccountUpdateService accountUpdateService;
     private final AuthenticationService authenticationService;
@@ -44,8 +46,8 @@ public class DependencyContainer {
   
         this.completionService = new CompletionService(queueService);
         this.duplicateCheckService = new DuplicateCheckService();
-        this.accountUpdateService = new AccountUpdateService(userInputHandler, duplicateCheckService);
-        this.authenticationService = new AuthenticationService(users, userInputHandler, duplicateCheckService);
+        this.accountUpdateService = new AccountUpdateService(textInputHandler, booleanInputHandler,duplicateCheckService);
+        this.authenticationService = new AuthenticationService(users, textInputHandler, duplicateCheckService);
         this.adminService = new AdminService(userManagementService, stallManagementService, userInputHandler,accountUpdateService,users);
     }
 
