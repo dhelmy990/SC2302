@@ -2,7 +2,8 @@ package services;
 
 import java.util.Scanner;
 
-public class UserInputHandler implements IUserInputHandler {
+public class UserInputHandler  implements ITextInputHandler,INumericInputHandler,IBooleanInputHandler
+{
     private final Scanner scanner;
 
     public UserInputHandler(Scanner scanner) {
