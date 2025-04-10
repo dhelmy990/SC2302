@@ -13,18 +13,23 @@ import utils.*;
 import services.ItemUpdateService;
 import services.ItemDeleteService;
 import queue.CompletionService;
+import services.ITextInputHandler;
+import services.INumericInputHandler;
 
 public class OwnerFlow extends Flow{
 
     OwnerMainMenu ownerMainMenu = new OwnerMainMenu();
     private final IQueueService queueService;
     private final CompletionService completionService;
+    private final INumericInputHandler numericInputHandler;
+    private final ITextInputHandler textInputHandler;
 
-    public OwnerFlow(DependencyContainer dependencies, IQueueService queueService,
-            CompletionService completionService) {
+    public OwnerFlow(DependencyContainer dependencies, IQueueService queueService, CompletionService completionService) {
         super(dependencies);
         this.queueService = queueService;
         this.completionService = completionService;
+        this.numericInputHandler = dependencies.getNumericInputHandler();
+        this.textInputHandler = dependencies.getTextInputHandler();
     }
 
     @Override
@@ -32,9 +37,7 @@ public class OwnerFlow extends Flow{
         Owner owner = (Owner) user;
         while (true) {
             ownerMainMenu.display();
-            System.out.print("Choose an option: ");
-            int choice = scanner.nextInt();
-            scanner.nextLine();
+            int choice = numericInputHandler.getValidIntegerInput("Choose an option: ", 1, 9);
 
             Stall stall = owner.getManagedStall(); // Access stall from owner
             if (stall == null) {
@@ -45,12 +48,12 @@ public class OwnerFlow extends Flow{
             switch (choice) {
                 case 1 -> ItemUtils.displayInventory(stall.getInventory().getAllItems());
                 case 2 -> {
-                    Item newItem = ItemInputUtils.createItemFromInput(scanner);
+                    Item newItem = ItemInputUtils.createItemFromInput(textInputHandler,numericInputHandler);
                     stall.getInventory().addItem(newItem);
                     System.out.println("Item added.");
                 }
-                case 3 -> new ItemUpdateService(scanner).update(stall.getInventory());
-                case 4 -> new ItemDeleteService(scanner).delete(stall.getInventory());
+                case 3 -> new ItemUpdateService(textInputHandler,numericInputHandler).update(stall.getInventory());
+                case 4 -> new ItemDeleteService(textInputHandler).delete(stall.getInventory());
                 case 5 -> {
                     List<Order> orders = queueService.getAllOrdersForStall(stall.getName());
                     if (orders.isEmpty()) {
@@ -89,8 +92,7 @@ public class OwnerFlow extends Flow{
                     }
 
                     while (true) {
-                        System.out.print("Enter Order ID to mark as completed or type exit to quit: ");
-                        String input = scanner.nextLine();
+                        String input = textInputHandler.getInput("Enter Order ID to mark as completed or type exit to quit: ");
                         if (input.equalsIgnoreCase("exit")) {
                             System.out.println("Marking order aborted.");
                             break;

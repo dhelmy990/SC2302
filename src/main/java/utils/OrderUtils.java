@@ -12,7 +12,7 @@ public class OrderUtils {
     }
     public static void displayGroupedItems(List<Item> items) {
         Map<String, Integer> grouped = new LinkedHashMap<>();
-        Map<String, Integer> prices = new HashMap<>();
+        Map<String, Double> prices = new HashMap<>();
 
         for (Item item : items) {
             grouped.put(item.getName(), grouped.getOrDefault(item.getName(), 0) + 1);
@@ -32,7 +32,7 @@ public class OrderUtils {
             prefix += " | User: " + order.getUsername();
         }
 
-        int total = order.getItems().stream().mapToInt(Item::getPrice).sum();
+        double total = order.getItems().stream().mapToDouble(Item::getPrice).sum();
         System.out.println(prefix + " | Status: " + order.getStatus() + " | Total: $" + total);
 
         System.out.println("Order Time: " + DateUtils.format(order.getOrderTime()));
@@ -54,7 +54,7 @@ public class OrderUtils {
 
         System.out.println("Items Breakdown:");
         Map<String, Integer> itemCounts = new LinkedHashMap<>();
-        Map<String, Integer> itemPrices = new LinkedHashMap<>();
+        Map<String, Double> itemPrices = new LinkedHashMap<>();
 
         for (Item item : order.getItems()) {
             itemCounts.put(item.getName(), itemCounts.getOrDefault(item.getName(), 0) + 1);
@@ -64,8 +64,8 @@ public class OrderUtils {
         int total = 0;
         for (String name : itemCounts.keySet()) {
             int qty = itemCounts.get(name);
-            int price = itemPrices.get(name);
-            int subtotal = qty * price;
+            double price = itemPrices.get(name);
+            double subtotal = qty * price;
             total += subtotal;
             System.out.println("- " + name + " x" + qty + " @ $" + price + " = $" + subtotal);
         }

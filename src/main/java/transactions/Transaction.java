@@ -12,7 +12,7 @@ public class Transaction {
     private final String dinerName;
     private final LocalDateTime dateTime;
     private final List<Item> items;
-    private final int totalCost;
+    private final double  totalCost;
     private final String paymentMethod;
     private String status;
     private final int orderId;
@@ -22,7 +22,7 @@ public class Transaction {
         this.stallName = stallName;
         this.dinerName = order.getUsername();
         this.items = order.getItems();
-        this.totalCost = items.stream().mapToInt(Item::getPrice).sum();
+        this.totalCost = items.stream().mapToDouble(Item::getPrice).sum();
         this.dateTime = LocalDateTime.now();
         this.paymentMethod = paymentMethod;
         this.status = order.getStatus(); 
@@ -66,7 +66,7 @@ public class Transaction {
         return items;
     }
 
-    public int getTotalCost() {
+    public double getTotalCost() {
         return totalCost;
     }
 

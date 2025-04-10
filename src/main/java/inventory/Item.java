@@ -2,11 +2,11 @@ package inventory;
 
 public class Item {
     private final String name;
-    private final int price;
+    private final double  price;
     private final int prepTime;
     private int quantity; 
 
-    public Item(String name, int price, int prepTime, int quantity) {
+    public Item(String name, double price, int prepTime, int quantity) {
         this.name = name;
         this.price = price;
         this.prepTime = prepTime;
@@ -17,7 +17,7 @@ public class Item {
         return name;
     }
 
-    public int getPrice() {
+    public double getPrice() {
         return price;
     }
 

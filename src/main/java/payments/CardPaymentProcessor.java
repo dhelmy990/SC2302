@@ -2,23 +2,20 @@ package payments;
 
 import java.util.Scanner;
 
-public class CardPaymentProcessor implements IPaymentProcessor {
-    private final Scanner scanner;
+import services.ITextInputHandler;
 
-    public CardPaymentProcessor(Scanner scanner) {
-        this.scanner = scanner;
+public class CardPaymentProcessor implements IPaymentProcessor {
+    private final ITextInputHandler textInputHandler;
+
+    public CardPaymentProcessor(ITextInputHandler textInputHandler) {
+        this.textInputHandler = textInputHandler;
     }
 
     @Override
     public boolean processPayment() {
-        System.out.print("Enter card number: ");
-        String card = scanner.nextLine();
-
-        System.out.print("Enter expiry date (MM/YY): ");
-        String expiry = scanner.nextLine();
-
-        System.out.print("Enter CVV: ");
-        String cvv = scanner.nextLine();
+        String card = textInputHandler.getNumericStringInput("Enter card number: ");
+        String expiry = textInputHandler.getNumericStringInput("Enter expiry date (MM/YY): ");
+        String cvv = textInputHandler.getNumericStringInput("Enter CVV: ");
 
         // Simulate validation (or just accept any input for now)
         if (card.isEmpty() || expiry.isEmpty() || cvv.isEmpty()) {

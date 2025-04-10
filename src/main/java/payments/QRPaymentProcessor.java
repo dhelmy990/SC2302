@@ -2,18 +2,20 @@ package payments;
 
 import java.util.Scanner;
 
-public class QRPaymentProcessor implements IPaymentProcessor {
-    private final Scanner scanner;
+import services.ITextInputHandler;
 
-    public QRPaymentProcessor(Scanner scanner) {
-        this.scanner = scanner;
+public class QRPaymentProcessor implements IPaymentProcessor {
+    private final ITextInputHandler textInputHandler;
+
+    public QRPaymentProcessor(ITextInputHandler textInputHandler) {
+        this.textInputHandler = textInputHandler;
     }
 
     @Override
     public boolean processPayment() {
         System.out.println("Scan this QR code: [### FAKE-QR-CODE ###]");
         System.out.print("Press Enter once payment is complete...");
-        scanner.nextLine();
+        textInputHandler.getInput("");
         System.out.println("QR payment received.");
         return true;
     }

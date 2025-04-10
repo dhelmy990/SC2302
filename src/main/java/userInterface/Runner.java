@@ -3,6 +3,8 @@ package userInterface;
 import dependencies.DependencyContainer;
 import services.AuthenticationService;
 import services.GuestUserService;
+import services.INumericInputHandler;
+import services.ITextInputHandler;
 import userInterface.flow.*;
 import userInterface.menu.WelcomeMenu;
 import users.*;
@@ -12,7 +14,8 @@ import java.util.*;
 public class Runner {
 
     private static final DependencyContainer dependencies = new DependencyContainer();
-    private static final Scanner scanner = dependencies.scanner;
+    private static final INumericInputHandler numericInputHandler = dependencies.getNumericInputHandler();
+    private static final ITextInputHandler textInputHandler = dependencies.getTextInputHandler();
     private static final List<User> users = dependencies.getUsers();
     private static final AuthenticationService authService = dependencies.getAuthenticationService();
     private static final GuestUserService guestUserService = new GuestUserService();
@@ -25,8 +28,7 @@ public class Runner {
         while (true) {
             WelcomeMenu welcomeMenu = new WelcomeMenu();
             welcomeMenu.display();
-            int choice = scanner.nextInt();
-            scanner.nextLine();
+            int choice = numericInputHandler.getValidIntegerInput("Enter your choice: ", 1, 4);
 
             switch (choice) {
                 case 1 -> handleLogin();

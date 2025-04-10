@@ -76,4 +76,61 @@ public class UserInputHandler  implements ITextInputHandler,INumericInputHandler
             }
         }
     }
+    @Override
+    public double getValidDoubleInput(String prompt) {
+        while (true) {
+            try {
+                System.out.print(prompt);
+                String input = scanner.nextLine().trim();
+                double value = Double.parseDouble(input);
+                if (value <= 0) {
+                    throw new IllegalArgumentException("Input must be a positive number.");
+                }
+                return value;
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a valid number.");
+            } catch (IllegalArgumentException e) {
+                System.out.println("Error: " + e.getMessage());
+            } catch (Exception e) {
+                System.out.println("Unexpected error occurred. Please try again.");
+            }
+        }
+    }
+    @Override
+public double getValidDoubleInput(String prompt, double min, double max) {
+    while (true) {
+        try {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();
+            double value = Double.parseDouble(input);
+            if (value < min || value > max) {
+                throw new IllegalArgumentException("Input must be between " + min + " and " + max + ".");
+            }
+            return value; // Return valid double within range
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input. Please enter a valid number.");
+        } catch (IllegalArgumentException e) {
+            System.out.println("Error: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Unexpected error occurred. Please try again.");
+        }
+    }
+}
+    @Override
+    public String getNumericStringInput(String prompt) {
+        while (true) {
+            try {
+                System.out.print(prompt);
+                String input = scanner.nextLine().trim();
+                if (!input.matches("\\d+")) { // Ensure input contains only digits
+                    throw new IllegalArgumentException("Input must contain only numeric characters.");
+                }
+                return input;
+            } catch (IllegalArgumentException e) {
+                System.out.println("Error: " + e.getMessage());
+            } catch (Exception e) {
+                System.out.println("Unexpected error occurred. Please try again.");
+            }
+        }
+    }
 }

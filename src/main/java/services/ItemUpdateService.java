@@ -9,23 +9,25 @@ import java.util.List;
 import java.util.Scanner;
 
 public class ItemUpdateService {
-    private final Scanner scanner;
+    private final ITextInputHandler textInputHandler;
+    private final INumericInputHandler numericInputHandler;
 
-    public ItemUpdateService(Scanner scanner) {
-        this.scanner = scanner;
+    public ItemUpdateService(ITextInputHandler textInputHandler,INumericInputHandler numericInputHandler) {
+        this.textInputHandler = textInputHandler;
+        this.numericInputHandler =numericInputHandler;
     }
 
     public void update(Inventory inventory) {
         List<Item> items = inventory.getAllItems();
         ItemUtils.displayInventory(items);
 
-        System.out.print("\nEnter item name to update: ");
-        String name = scanner.nextLine();
+        String name = textInputHandler.getNonEmptyInput("\nEnter item name to update: ");
+       
         Item existingItem = inventory.findItemByName(name);
 
         if (existingItem != null) {
             inventory.getAllItems().remove(existingItem);
-            Item updatedItem = ItemInputUtils.updateItemFromInput(scanner, existingItem);
+            Item updatedItem = ItemInputUtils.updateItemFromInput(textInputHandler, numericInputHandler, existingItem);
             inventory.addItem(updatedItem);
             System.out.println("Item updated.");
         } else {

@@ -7,7 +7,7 @@ public class ReceiptUtils {
         // Prevent instantiation
     }
 
-    public static void printReceipt(Order order, int total, String paymentMethod, boolean isGuest) {
+    public static void printReceipt(Order order, double  total, String paymentMethod, boolean isGuest) {
         System.out.println("\n====== " + (isGuest ? "Guest" : "Diner") + " Order Receipt ======");
 
         if (isGuest) {

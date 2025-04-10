@@ -8,10 +8,10 @@ import java.util.List;
 import java.util.Scanner;
 
 public class ItemDeleteService {
-    private final Scanner scanner;
+    private final ITextInputHandler textInputHandler;
 
-    public ItemDeleteService(Scanner scanner) {
-        this.scanner = scanner;
+    public ItemDeleteService(ITextInputHandler textInputHandler) {
+        this.textInputHandler = textInputHandler;
     }
 
     public void delete(Inventory inventory) {
@@ -22,8 +22,7 @@ public class ItemDeleteService {
         }
 
         ItemUtils.displayInventory(items);
-        System.out.print("Enter item name to delete: ");
-        String name = scanner.nextLine();
+        String name = textInputHandler.getNonEmptyInput("Enter item name to delete: ");
         Item item = inventory.findItemByName(name);
 
         if (item != null) {

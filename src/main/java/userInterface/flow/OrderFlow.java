@@ -8,7 +8,6 @@ import payments.*;
 import services.INumericInputHandler;
 import services.ITextInputHandler;
 import services.PaymentService;
-import services.UserInputHandler;
 import stalls.Stall;
 import users.Diner;
 import users.User;
@@ -66,7 +65,7 @@ public class OrderFlow extends Flow {
             return;
         }
 
-        int total = orderService.calculateTotalCost(selectedItems);
+        double total = orderService.calculateTotalCost(selectedItems);
 
         System.out.println("\nOrder Summary:");
         itemCounts.forEach((item, qty) ->
@@ -86,15 +85,15 @@ public class OrderFlow extends Flow {
         String paymentMethod;
         switch (paymentChoice) {
             case 1 -> {
-                paymentProcessor = new CardPaymentProcessor(scanner);
+                paymentProcessor = new CardPaymentProcessor(textInputHandler);
                 paymentMethod = "Card";
             }
             case 2 -> {
-                paymentProcessor = new CashPaymentProcessor(scanner, total);
+                paymentProcessor = new CashPaymentProcessor(numericInputHandler, total);
                 paymentMethod = "Cash";
             }
             case 3 -> {
-                paymentProcessor = new QRPaymentProcessor(scanner);
+                paymentProcessor = new QRPaymentProcessor(textInputHandler);
                 paymentMethod = "QR / PayNow";
             }
             default -> throw new IllegalStateException("Unexpected value: " + paymentChoice);
@@ -152,8 +151,7 @@ public class OrderFlow extends Flow {
         }
     
         while (true) {
-            System.out.print("Enter Order ID to cancel or type exit to quit: ");
-            String input = scanner.nextLine();
+            String input = textInputHandler.getInput("Enter Order ID to cancel or type exit to quit: ");
             if (input.equalsIgnoreCase("exit")) {
                 System.out.println("Cancellation aborted.");
                 break;
@@ -169,7 +167,7 @@ public class OrderFlow extends Flow {
     
                 Order cancelledOrder = orderService.cancelOrder(username, id);
                 if (cancelledOrder != null) {
-                    int refundAmount = cancelledOrder.getItems().stream().mapToInt(Item::getPrice).sum();
+                    double refundAmount = cancelledOrder.getItems().stream().mapToDouble(Item::getPrice).sum();
                     System.out.println("Order cancelled successfully. $" + refundAmount + " has been refunded.");
                     return true;
                 } else {

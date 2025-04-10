@@ -49,8 +49,8 @@ public class OrderService {
         return orderManager.getOrdersByUser(userId);
     }
 
-    public int calculateTotalCost(java.util.List<inventory.Item> items) {
-        return items.stream().mapToInt(inventory.Item::getPrice).sum();
+    public double calculateTotalCost(java.util.List<inventory.Item> items) {
+        return items.stream().mapToDouble(inventory.Item::getPrice).sum();
     }
 
     public Order cancelOrder(String username, int orderId) {

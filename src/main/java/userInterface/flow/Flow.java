@@ -8,7 +8,8 @@ import users.User;
 
 public abstract class Flow {
 
-        public final Scanner scanner;
+        private final INumericInputHandler numericInputHandler;
+        private final ITextInputHandler textInputHandler;
         public final List<Stall> stalls;
         public final IStallService canteenManager;
         public final List<User> users;
@@ -17,7 +18,8 @@ public abstract class Flow {
         public final IAccountUpdateService accountUpdateService;
 
     Flow(DependencyContainer dependencies){
-        this.scanner = dependencies.scanner;
+        this.numericInputHandler = dependencies.getNumericInputHandler();
+        this.textInputHandler = dependencies.getTextInputHandler();
         this.stalls = dependencies.getStalls();
         this.canteenManager = dependencies.getCanteenManagerInstance();
         this.users = dependencies.getUsers();
@@ -26,5 +28,15 @@ public abstract class Flow {
         this.accountUpdateService = dependencies.getAccountUpdateService();
     }
 
+    protected INumericInputHandler getNumericInputHandler() {
+        return numericInputHandler;
+    }
+
+    protected ITextInputHandler getTextInputHandler() {
+        return textInputHandler;
+    }
+
     abstract void run(User user);
 }
+
+

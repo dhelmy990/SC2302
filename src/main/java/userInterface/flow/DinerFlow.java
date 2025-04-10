@@ -4,6 +4,8 @@ import java.util.*;
 
 import dependencies.DependencyContainer;
 import orders.Order;
+import services.INumericInputHandler;
+import services.ITextInputHandler;
 import userInterface.menu.DinerMainMenu;
 import utils.*;
 
@@ -21,10 +23,11 @@ public class DinerFlow extends Flow{
     @Override
     public void run(User user){
         Diner diner = (Diner) user;
+         INumericInputHandler numericInputHandler = getNumericInputHandler();
+        ITextInputHandler textInputHandler = getTextInputHandler();
         while (true) {
             dinerMainMenu.display();
-            int choice = scanner.nextInt();
-            scanner.nextLine();
+            int choice = numericInputHandler.getValidIntegerInput("Choose an option: ", 1, 5);
 
             switch (choice) {
                 case 1 -> orderFlow.run(diner);
@@ -37,11 +40,11 @@ public class DinerFlow extends Flow{
                             OrderUtils.displayOrderSummary(order, true, false);
                         }
 
-                        System.out.println("\nEnter an Order ID to view full details or press Enter to skip:");
+                       
 
                         while (true) {
                             System.out.print("> ");
-                            String input = scanner.nextLine().trim();
+                            String input = textInputHandler.getInput("\nEnter an Order ID to view full details or press Enter to skip: ");
 
                             if (input.isEmpty()) {
                                 System.out.println("Returning to menu...");

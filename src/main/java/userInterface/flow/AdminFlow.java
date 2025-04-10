@@ -2,6 +2,7 @@ package userInterface.flow;
 
 import utils.*;
 import dependencies.DependencyContainer;
+import services.INumericInputHandler;
 import users.*;
 
 public class AdminFlow extends Flow {
@@ -13,6 +14,7 @@ public class AdminFlow extends Flow {
     @Override
     public void run(User user){
         Admin admin = (Admin) user;
+        INumericInputHandler numericInputHandler = getNumericInputHandler();
         while (true) {
             System.out.println("\n--- Admin Menu ---");
             System.out.println("1. Add New User");
@@ -28,8 +30,7 @@ public class AdminFlow extends Flow {
             System.out.println("11. View/Update Account Details");
             System.out.println("12. Logout");
             System.out.print("Choose an option: ");
-            int choice = scanner.nextInt();
-            scanner.nextLine();
+            int choice = numericInputHandler.getValidIntegerInput("Choose an option: ", 1, 12);
 
             switch (choice) {
                 case 1 -> adminService.addNewUser();
