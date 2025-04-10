@@ -57,4 +57,8 @@ public class StallManagementService {
             .filter(stall -> ownerUsername.equalsIgnoreCase(stall.getOwnerUsername()))
             .forEach(stall -> stall.setOwnerUsername(null));
     }
+    public boolean isStallNameTaken(String stallName) {
+        return stalls.stream()
+                     .anyMatch(stall -> stall.getName().equalsIgnoreCase(stallName));
+    }
 }

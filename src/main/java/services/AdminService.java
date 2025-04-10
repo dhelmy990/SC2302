@@ -85,24 +85,47 @@ ITextInputHandler textInputHandler, IBooleanInputHandler booleanInputHandler,IAc
 
     public void addNewStall() {
         try {
-            String stallName = textInputHandler.getNonEmptyInput("Enter stall name: ");
-            boolean assignNow = booleanInputHandler.getYesNoInput("Do you want to assign an owner now? (yes/no): ");
+            String stallName = null;
+            boolean isUnique = false;
+    
+            int maxRetries = 3;
+            int attempts = 0;
             
+            while (!isUnique && attempts < maxRetries) {
+                stallName = textInputHandler.getNonEmptyInput("Enter stall name: ");
+            
+                if (stallService.isStallNameTaken(stallName)) {
+                    System.out.println("A stall with this name already exists. Please choose a different name.");
+                    attempts++;
+                    if (attempts == maxRetries) {
+                        System.out.println("Too many failed attempts. Exiting...");
+                        return;
+                    }
+                } else {
+                    isUnique = true;
+                }
+            }
+    
+            // Ask if the user wants to assign an owner now
+            boolean assignNow = booleanInputHandler.getYesNoInput("Do you want to assign an owner now?");
+    
             String ownerUsername = null;
             Owner matchedOwner = null;
-            
+    
             if (assignNow) {
                 ownerUsername = textInputHandler.getNonEmptyInput("Enter owner username: ");
                 matchedOwner = findOwnerByUsername(ownerUsername);
-                
+    
                 if (matchedOwner == null) {
                     System.out.println("Owner not found. Stall will not be assigned.");
                 }
             }
-            
+    
+            // Create the stall and add it to the system
             Stall stall = new Stall(stallName, ownerUsername);
             stallService.addStall(stall);
-            
+    
+            // Assign the stall to the owner if applicable
             if (matchedOwner != null) {
                 matchedOwner.setManagedStall(stall);
                 System.out.println("Stall added and assigned to owner: " + ownerUsername);
