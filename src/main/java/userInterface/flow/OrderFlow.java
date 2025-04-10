@@ -5,6 +5,8 @@ import inventory.Item;
 import java.util.*;
 import orders.Order;
 import payments.*;
+import services.INumericInputHandler;
+import services.ITextInputHandler;
 import services.PaymentService;
 import services.UserInputHandler;
 import stalls.Stall;
@@ -14,11 +16,13 @@ import utils.*;
 
 public class OrderFlow extends Flow {
 
-    private final UserInputHandler inputHandler; // Use UserInputHandler
+    private final ITextInputHandler textInputHandler;
+    private final INumericInputHandler numericInputHandler;
 
     OrderFlow(DependencyContainer dependencies) {
         super(dependencies);
-        this.inputHandler = dependencies.userInputHandler; // Initialize UserInputHandler
+        this.textInputHandler = dependencies.getTextInputHandler();
+        this.numericInputHandler = dependencies.getNumericInputHandler(); 
     }
 
     public void run(User user) {
@@ -29,7 +33,7 @@ public class OrderFlow extends Flow {
         }
 
         
-        int stallChoice = inputHandler.getValidIntegerInput("Select stall number: ", 1, stalls.size());
+        int stallChoice = numericInputHandler.getValidIntegerInput("Select stall number: ", 1, stalls.size());
         Stall selectedStall = stalls.get(stallChoice - 1);
         List<Item> allItems = selectedStall.getInventory().getAllItems();
 
@@ -41,7 +45,7 @@ public class OrderFlow extends Flow {
             ItemUtils.displayMenu(allItems);
 
             
-            int itemNum = inputHandler.getValidIntegerInput("Enter item number to add to order (0 to finish): ", 0, allItems.size());
+            int itemNum = numericInputHandler.getValidIntegerInput("Enter item number to add to order (0 to finish): ", 0, allItems.size());
             if (itemNum == 0) break;
 
             Item chosenItem = allItems.get(itemNum - 1);
@@ -71,7 +75,7 @@ public class OrderFlow extends Flow {
         System.out.println("Total Cost: $" + total);
 
         
-        int paymentChoice = inputHandler.getValidIntegerInput("""
+        int paymentChoice = numericInputHandler.getValidIntegerInput("""
             Choose Payment Method:
             1. Card
             2. Cash

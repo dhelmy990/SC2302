@@ -10,14 +10,16 @@ public class AdminService {
     private final List<User> users;
     private final UserManagementService userService;
     private final StallManagementService stallService;
-    private final IUserInputHandler inputHandler;
+    private final ITextInputHandler textInputHandler;
+    private final IBooleanInputHandler booleanInputHandler;
     private final IAccountUpdateService accountUpdateService;
 
 public AdminService(UserManagementService userManagementService, StallManagementService stallManagementService,
-                     IUserInputHandler inputHandler, IAccountUpdateService accountUpdateService, List<User> users) {
+ITextInputHandler textInputHandler, IBooleanInputHandler booleanInputHandler,IAccountUpdateService accountUpdateService, List<User> users) {
     this.userService = userManagementService;
     this.stallService = stallManagementService;
-    this.inputHandler = inputHandler;
+    this.textInputHandler = textInputHandler;
+    this.booleanInputHandler = booleanInputHandler;
     this.accountUpdateService = accountUpdateService; 
     this.users = users;
 }
@@ -34,8 +36,8 @@ public AdminService(UserManagementService userManagementService, StallManagement
         stallService.viewAllStalls();
         
         try {
-            String stallId = inputHandler.getNonEmptyInput("\nEnter Stall ID to edit: ");
-            String newName = inputHandler.getNonEmptyInput("Enter new stall name: ");
+            String stallId = textInputHandler.getNonEmptyInput("\nEnter Stall ID to edit: ");
+            String newName = textInputHandler.getNonEmptyInput("Enter new stall name: ");
             
             stallService.updateStallName(stallId, newName);
             System.out.println("Stall name updated.");
@@ -48,7 +50,7 @@ public AdminService(UserManagementService userManagementService, StallManagement
         userService.viewAllUsers();
         
         try {
-            String username = inputHandler.getNonEmptyInput("\nEnter username to remove: ");
+            String username = textInputHandler.getNonEmptyInput("\nEnter username to remove: ");
             userService.removeUser(username);
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
@@ -59,7 +61,7 @@ public AdminService(UserManagementService userManagementService, StallManagement
         stallService.viewAllStalls();
         
         try {
-            String stallId = inputHandler.getNonEmptyInput("\nEnter Stall ID to remove: ");
+            String stallId = textInputHandler.getNonEmptyInput("\nEnter Stall ID to remove: ");
             stallService.removeStall(stallId);
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
@@ -68,10 +70,10 @@ public AdminService(UserManagementService userManagementService, StallManagement
 
     public void addNewUser() {
         try {
-            String username = inputHandler.getNonEmptyInput("Enter username: ");
-            String email = inputHandler.getNonEmptyInput("Enter email: ");
-            String password = inputHandler.getNonEmptyInput("Enter password: ");
-            String role = inputHandler.getNonEmptyInput("Enter role (diner/owner/admin): ");
+            String username = textInputHandler.getNonEmptyInput("Enter username: ");
+            String email = textInputHandler.getNonEmptyInput("Enter email: ");
+            String password = textInputHandler.getNonEmptyInput("Enter password: ");
+            String role = textInputHandler.getNonEmptyInput("Enter role (diner/owner/admin): ");
 
             User newUser = UserFactory.createUser(username, email, password, role);
             userService.addUser(newUser);
@@ -83,14 +85,14 @@ public AdminService(UserManagementService userManagementService, StallManagement
 
     public void addNewStall() {
         try {
-            String stallName = inputHandler.getNonEmptyInput("Enter stall name: ");
-            boolean assignNow = inputHandler.getYesNoInput("Do you want to assign an owner now? (yes/no): ");
+            String stallName = textInputHandler.getNonEmptyInput("Enter stall name: ");
+            boolean assignNow = booleanInputHandler.getYesNoInput("Do you want to assign an owner now? (yes/no): ");
             
             String ownerUsername = null;
             Owner matchedOwner = null;
             
             if (assignNow) {
-                ownerUsername = inputHandler.getNonEmptyInput("Enter owner username: ");
+                ownerUsername = textInputHandler.getNonEmptyInput("Enter owner username: ");
                 matchedOwner = findOwnerByUsername(ownerUsername);
                 
                 if (matchedOwner == null) {
@@ -120,7 +122,7 @@ public AdminService(UserManagementService userManagementService, StallManagement
         userService.viewAllUsers();
 
         try {
-            String targetUsername = inputHandler.getNonEmptyInput("\nEnter username of user to edit: ");
+            String targetUsername = textInputHandler.getNonEmptyInput("\nEnter username of user to edit: ");
             User user = userService.findUserByUsername(targetUsername);
 
             if (user == null) {
@@ -142,7 +144,7 @@ public AdminService(UserManagementService userManagementService, StallManagement
         stallService.viewAllStalls();
         
         try {
-            String stallId = inputHandler.getNonEmptyInput("Enter Stall ID to reassign: ");
+            String stallId = textInputHandler.getNonEmptyInput("Enter Stall ID to reassign: ");
             Stall targetStall = stallService.findStallById(stallId);
             
             if (targetStall == null) {
@@ -150,7 +152,7 @@ public AdminService(UserManagementService userManagementService, StallManagement
                 return;
             }
             
-            String newOwnerUsername = inputHandler.getNonEmptyInput("Enter new owner username: ");
+            String newOwnerUsername = textInputHandler.getNonEmptyInput("Enter new owner username: ");
             Owner newOwner = findOwnerByUsername(newOwnerUsername);
             
             if (newOwner == null) {

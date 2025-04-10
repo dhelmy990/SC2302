@@ -10,15 +10,13 @@ import stalls.Stall;
 import transactions.TxnManager;
 import users.User;
 
-
 public class DependencyContainer {
-    
+
     private final OrderService orderService;
     private final CanteenManager canteenManager;
     private final AdminService adminService;
     private final CompletionService completionService;
 
-  
     private final List<Stall> stalls;
     private final List<User> users;
 
@@ -30,36 +28,40 @@ public class DependencyContainer {
     private final IAccountUpdateService accountUpdateService;
     private final AuthenticationService authenticationService;
 
-
-    public DependencyContainer(){
+    public DependencyContainer() {
         OrderManager orderManager = new OrderManager();
         TxnManager txnManager = new TxnManager();
         QueueService queueService = new QueueService();
         this.canteenManager = new CanteenManager();
         this.orderService = new OrderService(orderManager, queueService, txnManager, canteenManager);
-        // Load simulated data
+        UserInputHandler userInputHandler = new UserInputHandler(scanner);
+        this.textInputHandler = userInputHandler;
+        this.booleanInputHandler = userInputHandler;
+        this.numericInputHandler = userInputHandler;
         this.stalls = SimulatedData.getSampleStalls();
         this.users = SimulatedData.getSampleUsers(canteenManager);
         // Set up adminService
         StallManagementService stallManagementService = new StallManagementService(stalls);
         UserManagementService userManagementService = new UserManagementService(users, stallManagementService);
-  
+
         this.completionService = new CompletionService(queueService);
         this.duplicateCheckService = new DuplicateCheckService();
-        this.accountUpdateService = new AccountUpdateService(textInputHandler, booleanInputHandler,duplicateCheckService);
+        this.accountUpdateService = new AccountUpdateService(textInputHandler, booleanInputHandler,
+                duplicateCheckService);
         this.authenticationService = new AuthenticationService(users, textInputHandler, duplicateCheckService);
-        this.adminService = new AdminService(userManagementService, stallManagementService, userInputHandler,accountUpdateService,users);
+        this.adminService = new AdminService(userManagementService, stallManagementService, textInputHandler,
+                booleanInputHandler, accountUpdateService, users);
     }
 
-    public CanteenManager getCanteenManagerInstance(){
+    public CanteenManager getCanteenManagerInstance() {
         return this.canteenManager;
     }
 
-    public OrderService getOrderServiceInstance(){
+    public OrderService getOrderServiceInstance() {
         return this.orderService;
     }
 
-    public AdminService getAdminService(){
+    public AdminService getAdminService() {
         return adminService;
     }
 
@@ -67,20 +69,26 @@ public class DependencyContainer {
         return this.accountUpdateService;
     }
 
-    public CompletionService getCompletionServiceInstance(){
+    public CompletionService getCompletionServiceInstance() {
         return completionService;
     }
 
-    public List<Stall> getStalls(){
+    public List<Stall> getStalls() {
         return stalls;
     }
 
-    public List<User> getUsers(){
+    public List<User> getUsers() {
         return users;
     }
-    
+
     public AuthenticationService getAuthenticationService() {
         return authenticationService;
+    }
+    public ITextInputHandler getTextInputHandler(){
+        return textInputHandler;
+    }
+    public INumericInputHandler getNumericInputHandler(){
+        return numericInputHandler;
     }
 
 }
