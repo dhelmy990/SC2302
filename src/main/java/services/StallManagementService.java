@@ -1,13 +1,25 @@
 package services;
 
-import stalls.*;
-import java.util.*;
+import stalls.IStallService;
+import stalls.Stall;
+import java.util.Iterator;
+import java.util.List;
 
-public class StallManagementService {
+public class StallManagementService implements IStallService {
     private final List<Stall> stalls;
 
     public StallManagementService(List<Stall> stalls) {
         this.stalls = stalls;
+    }
+
+    @Override
+    public List<Stall> getAllStalls() {
+        return stalls;
+    }
+
+    @Override
+    public Stall getStallById(String stallId) {
+        return findStallById(stallId);
     }
 
     public void viewAllStalls() {
@@ -57,6 +69,7 @@ public class StallManagementService {
             .filter(stall -> ownerUsername.equalsIgnoreCase(stall.getOwnerUsername()))
             .forEach(stall -> stall.setOwnerUsername(null));
     }
+
     public boolean isStallNameTaken(String stallName) {
         return stalls.stream()
                      .anyMatch(stall -> stall.getName().equalsIgnoreCase(stallName));

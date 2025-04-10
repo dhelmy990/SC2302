@@ -8,6 +8,5 @@ public class WelcomeMenu implements iMainMenu{
             System.out.println("2. Sign Up");
             System.out.println("3. Continue as Guest");
             System.out.println("4. Exit");
-            System.out.print("Choose an option: ");
     }
 }
