@@ -1,4 +1,4 @@
-package userInterface.Menu;
+package userInterface.menu;
 
 public class OwnerMainMenu implements iMainMenu{
     @Override

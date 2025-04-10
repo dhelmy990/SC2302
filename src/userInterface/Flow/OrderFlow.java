@@ -1,4 +1,4 @@
-package userInterface.Flow;
+package userInterface.flow;
 
 import dependencies.DependencyContainer;
 import inventory.Item;

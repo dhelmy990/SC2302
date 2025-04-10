@@ -3,9 +3,8 @@ package userInterface;
 import dependencies.DependencyContainer;
 import services.AuthenticationService;
 import services.GuestUserService;
-
-import userInterface.Flow.*;
-import userInterface.Menu.WelcomeMenu;
+import userInterface.flow.*;
+import userInterface.menu.WelcomeMenu;
 import users.*;
 
 import java.util.*;

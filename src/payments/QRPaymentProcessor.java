@@ -13,7 +13,7 @@ public class QRPaymentProcessor implements IPaymentProcessor {
     public boolean processPayment() {
         System.out.println("Scan this QR code: [### FAKE-QR-CODE ###]");
         System.out.print("Press Enter once payment is complete...");
-        scanner.nextLine(); // Simulate confirmation
+        scanner.nextLine();
         System.out.println("QR payment received.");
         return true;
     }

@@ -1,14 +1,14 @@
-package userInterface.Flow;
+package userInterface.flow;
 import users.*;
 import java.util.*;
 
 import dependencies.DependencyContainer;
 import inventory.Item;
-import userInterface.Menu.*;
 import orders.Order;
 import queue.IQueueService;
 import stalls.Stall;
 import transactions.Transaction;
+import userInterface.menu.*;
 import utils.*;
 import services.ItemUpdateService;
 import services.ItemDeleteService;

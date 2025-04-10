@@ -1,10 +1,10 @@
-package userInterface.Flow;
+package userInterface.flow;
 import users.*;
 import java.util.*;
 
 import dependencies.DependencyContainer;
-import userInterface.Menu.DinerMainMenu;
 import orders.Order;
+import userInterface.menu.DinerMainMenu;
 import utils.*;
 
 public class DinerFlow extends Flow{
