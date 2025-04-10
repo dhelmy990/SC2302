@@ -27,13 +27,19 @@ public class DependencyContainer {
     private final IDuplicateCheckService duplicateCheckService;
     private final IAccountUpdateService accountUpdateService;
     private final AuthenticationService authenticationService;
+    private final IStallOrderService stallOrderService;
+    private final IUserOrderService userOrderService;
+
 
     public DependencyContainer() {
         OrderManager orderManager = new OrderManager();
         TxnManager txnManager = new TxnManager();
-        QueueService queueService = new QueueService();
+        IWaitTimeEstimator estimator = new SimpleWaitTimeEstimator();
+        QueueService queueService = new QueueService(estimator);
         this.canteenManager = new CanteenManager();
-        this.orderService = new OrderService(orderManager, queueService, txnManager, canteenManager);
+        this.userOrderService = new UserOrderService(queueService);
+        this.stallOrderService = new StallOrderService(queueService);
+        this.orderService = new OrderService(orderManager, queueService, userOrderService, stallOrderService, txnManager, canteenManager);
         UserInputHandler userInputHandler = new UserInputHandler(scanner);
         this.textInputHandler = userInputHandler;
         this.booleanInputHandler = userInputHandler;

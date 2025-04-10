@@ -12,14 +12,21 @@ public class OrderService {
     private final TxnManager txnManager;
     private final IQueueService queueService;
     protected final IStallService stallService;
+    private final IUserOrderService userOrderService;
+    private final IStallOrderService stallOrderService;
 
-    public OrderService(OrderManager orderManager, 
-            IQueueService queueservice, TxnManager txnManager,
+    public OrderService(OrderManager orderManager,
+            IQueueService queueService,
+            IUserOrderService userOrderService,
+            IStallOrderService stallOrderService,
+            TxnManager txnManager,
             IStallService stallService) {
         this.orderManager = orderManager;
+        this.queueService = queueService;
+        this.userOrderService = userOrderService;
+        this.stallOrderService = stallOrderService;
         this.txnManager = txnManager;
         this.stallService = stallService;
-        this.queueService = queueservice;
     }
     
     public TxnManager getTxnManagerInstance(){
@@ -41,7 +48,7 @@ public class OrderService {
         return estTime;
     }
     public List<Order> getCancellableOrders(String username) {
-        return queueService.getOrdersByUser(username).stream()
+        return userOrderService.getOrdersByUser(username).stream()
             .filter(Order::isPreparing)
             .toList();
     }
@@ -54,7 +61,7 @@ public class OrderService {
     }
 
     public Order cancelOrder(String username, int orderId) {
-        String stallName = queueService.getStallNameForOrder(orderId);
+        String stallName = stallOrderService.getStallNameForOrder(orderId);
         if (stallName == null || stallName.isEmpty()) {
             System.out.println("Order not found.");
             return null;

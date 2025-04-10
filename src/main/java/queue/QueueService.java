@@ -5,12 +5,15 @@ import orders.Order;
 
 public class QueueService implements IQueueService {
     private final Map<String, Queue<Order>> stallQueues = new HashMap<>();
-
+    private final IWaitTimeEstimator waitTimeEstimator;
+    public QueueService(IWaitTimeEstimator waitTimeEstimator) {
+        this.waitTimeEstimator = waitTimeEstimator;
+    }
     @Override
     public int enqueueOrder(String stallName, Order order) {
         Queue<Order> queue = stallQueues.computeIfAbsent(stallName, k -> new LinkedList<>());
 
-        int waitTimeBeforeThisOrder = estimateWaitTime(queue);
+        int waitTimeBeforeThisOrder = waitTimeEstimator.estimateWaitTime(queue);
         int thisOrderPrepTime = order.getItems().stream().mapToInt(i -> i.getPrepTime()).sum();
 
         order.setWaitingTime(waitTimeBeforeThisOrder + thisOrderPrepTime);
@@ -62,28 +65,5 @@ public class QueueService implements IQueueService {
         return Collections.unmodifiableMap(stallQueues); // Return an unmodifiable view for safety
     }
 
-    @Override
-    public String getStallNameForOrder(int orderId) {
-        for (Map.Entry<String, Queue<Order>> entry : stallQueues.entrySet()) {
-            for (Order o : entry.getValue()) {
-                if (o.getID() == orderId) {
-                    return entry.getKey();
-                }
-            }
-        }
-        return ""; // Return empty string if order is not found
-    }
 
-    @Override
-    public List<Order> getOrdersByUser(String username) {
-        List<Order> result = new ArrayList<>();
-        for (Queue<Order> queue : stallQueues.values()) {
-            for (Order o : queue) {
-                if (o.getUsername().equals(username)) {
-                    result.add(o);
-                }
-            }
-        }
-        return result;
-    }
 }

@@ -15,9 +15,6 @@ public interface IQueueService {
 
     Map<String, Queue<Order>> getStallQueues();
 
-    String getStallNameForOrder(int orderId);
-
-    List<Order> getOrdersByUser(String username);
 }
 
 
