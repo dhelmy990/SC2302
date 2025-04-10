@@ -18,7 +18,7 @@ public class DependencyContainer {
     private final AdminService adminService;
     private final CompletionService completionService;
 
-    // Simulation Data
+  
     private final List<Stall> stalls;
     private final List<User> users;
 
