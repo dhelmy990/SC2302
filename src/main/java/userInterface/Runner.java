@@ -4,23 +4,18 @@ import dependencies.DependencyContainer;
 import services.AuthenticationService;
 import services.GuestUserService;
 import services.INumericInputHandler;
-import services.ITextInputHandler;
 import userInterface.flow.*;
 import userInterface.menu.WelcomeMenu;
 import users.*;
-
-import java.util.*;
 
 public class Runner {
 
     private static final DependencyContainer dependencies = new DependencyContainer();
     private static final INumericInputHandler numericInputHandler = dependencies.getNumericInputHandler();
-    private static final ITextInputHandler textInputHandler = dependencies.getTextInputHandler();
-    private static final List<User> users = dependencies.getUsers();
     private static final AuthenticationService authService = dependencies.getAuthenticationService();
     private static final GuestUserService guestUserService = new GuestUserService();
     private static final DinerFlow dinerFlow = new DinerFlow(dependencies);
-    private static final OwnerFlow ownerFlow = new OwnerFlow(dependencies, dependencies.getOrderServiceInstance().getQueueServiceInstance(), dependencies.getCompletionServiceInstance());
+    private static final OwnerFlow ownerFlow = new OwnerFlow(dependencies);
     private static final GuestFlow guestFlow = new GuestFlow(dependencies);
     private static final AdminFlow adminFlow = new AdminFlow(dependencies);
 

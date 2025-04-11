@@ -26,7 +26,6 @@ INumericInputHandler numericInputHandler = getNumericInputHandler();
                 System.out.println("1. Order Food");
                 System.out.println("2. Track My Orders");
                 System.out.println("3. Exit");
-                System.out.print("Choose an option: ");
                 int choice = numericInputHandler.getValidIntegerInput("Choose an option: ", 1, 3);
 
                 switch (choice) {

@@ -6,7 +6,6 @@ import utils.ItemInputUtils;
 import utils.ItemUtils;
 
 import java.util.List;
-import java.util.Scanner;
 
 public class ItemUpdateService {
     private final ITextInputHandler textInputHandler;

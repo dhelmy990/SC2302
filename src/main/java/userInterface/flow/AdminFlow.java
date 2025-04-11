@@ -1,6 +1,5 @@
 package userInterface.flow;
 
-import utils.*;
 import dependencies.DependencyContainer;
 import services.INumericInputHandler;
 import users.*;
@@ -13,7 +12,6 @@ public class AdminFlow extends Flow {
     
     @Override
     public void run(User user){
-        Admin admin = (Admin) user;
         INumericInputHandler numericInputHandler = getNumericInputHandler();
         while (true) {
             System.out.println("\n--- Admin Menu ---");

@@ -5,7 +5,6 @@ import inventory.Item;
 import utils.ItemUtils;
 
 import java.util.List;
-import java.util.Scanner;
 
 public class ItemDeleteService {
     private final ITextInputHandler textInputHandler;

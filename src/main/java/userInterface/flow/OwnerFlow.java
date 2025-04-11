@@ -24,10 +24,10 @@ public class OwnerFlow extends Flow{
     private final INumericInputHandler numericInputHandler;
     private final ITextInputHandler textInputHandler;
 
-    public OwnerFlow(DependencyContainer dependencies, IQueueService queueService, CompletionService completionService) {
+    public OwnerFlow(DependencyContainer dependencies) {
         super(dependencies);
-        this.queueService = queueService;
-        this.completionService = completionService;
+        this.queueService = dependencies.getOrderServiceInstance().getQueueServiceInstance();
+        this.completionService = dependencies.getCompletionServiceInstance();
         this.numericInputHandler = dependencies.getNumericInputHandler();
         this.textInputHandler = dependencies.getTextInputHandler();
     }

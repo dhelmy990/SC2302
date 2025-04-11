@@ -6,9 +6,11 @@ import orders.Order;
 public class QueueService implements IQueueService {
     private final Map<String, Queue<Order>> stallQueues = new HashMap<>();
     private final IWaitTimeEstimator waitTimeEstimator;
+    
     public QueueService(IWaitTimeEstimator waitTimeEstimator) {
         this.waitTimeEstimator = waitTimeEstimator;
     }
+
     @Override
     public int enqueueOrder(String stallName, Order order) {
         Queue<Order> queue = stallQueues.computeIfAbsent(stallName, k -> new LinkedList<>());
@@ -23,7 +25,6 @@ public class QueueService implements IQueueService {
         if (head != null && head.getStatus().equals("Preparing")) {
             head.markCooking();
         }
-
         return order.getWaitingTime();
     }
 
@@ -52,12 +53,6 @@ public class QueueService implements IQueueService {
             position++;
         }
         return -1;
-    }
-
-    private int estimateWaitTime(Queue<Order> queue) {
-        return queue.stream()
-                .mapToInt(o -> o.getItems().stream().mapToInt(i -> i.getPrepTime()).sum())
-                .sum();
     }
 
     @Override

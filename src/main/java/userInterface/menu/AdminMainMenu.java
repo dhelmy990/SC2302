@@ -16,6 +16,5 @@ public class AdminMainMenu implements iMainMenu {
         System.out.println("10. View All Transactions");
         System.out.println("11. View/Update Account Details");
         System.out.println("12. Logout");
-        System.out.print("Choose an option: ");
     }
 }

@@ -1,8 +1,6 @@
 package payments;
 
-import java.util.Scanner;
 import services.INumericInputHandler;
-import services.ITextInputHandler;
 
 public class CashPaymentProcessor implements IPaymentProcessor {
     private final INumericInputHandler numericInputHandler;

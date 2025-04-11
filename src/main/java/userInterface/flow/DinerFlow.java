@@ -23,7 +23,7 @@ public class DinerFlow extends Flow{
     @Override
     public void run(User user){
         Diner diner = (Diner) user;
-         INumericInputHandler numericInputHandler = getNumericInputHandler();
+        INumericInputHandler numericInputHandler = getNumericInputHandler();
         ITextInputHandler textInputHandler = getTextInputHandler();
         while (true) {
             dinerMainMenu.display();
