@@ -1,13 +1,14 @@
-package queue;
+package services;
 
 import java.util.*;
 import orders.Order;
+import queue.IQueueManager;
 
 public class CompletionService implements ICompletionService {
     private final Map<String, List<Order>> completedOrders = new HashMap<>();
-    private final IQueueService queueService;
+    private final IQueueManager queueService;
 
-    public CompletionService(IQueueService queueService) {
+    public CompletionService(IQueueManager queueService) {
         this.queueService = queueService;
     }
 

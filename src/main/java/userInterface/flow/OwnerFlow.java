@@ -5,21 +5,21 @@ import java.util.*;
 import dependencies.DependencyContainer;
 import inventory.Item;
 import orders.Order;
-import queue.IQueueService;
+import queue.IQueueManager;
 import stalls.Stall;
 import transactions.Transaction;
 import userInterface.menu.*;
 import utils.*;
 import services.ItemUpdateService;
 import services.ItemDeleteService;
-import queue.CompletionService;
 import services.ITextInputHandler;
+import services.CompletionService;
 import services.INumericInputHandler;
 
 public class OwnerFlow extends Flow{
 
     OwnerMainMenu ownerMainMenu = new OwnerMainMenu();
-    private final IQueueService queueService;
+    private final IQueueManager queueService;
     private final CompletionService completionService;
     private final INumericInputHandler numericInputHandler;
     private final ITextInputHandler textInputHandler;

@@ -34,7 +34,7 @@ public class DependencyContainer {
         OrderManager orderManager = new OrderManager();
         TxnManager txnManager = new TxnManager();
         IWaitTimeEstimator estimator = new SimpleWaitTimeEstimator();
-        QueueService queueService = new QueueService(estimator);
+        QueueManager queueService = new QueueManager(estimator);
         
         this.userOrderService = new UserOrderService(queueService);
         this.stallOrderService = new StallOrderService(queueService);

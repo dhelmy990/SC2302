@@ -2,12 +2,13 @@ package queue;
 
 import java.util.*;
 import orders.Order;
+import services.IWaitTimeEstimator;
 
-public class QueueService implements IQueueService {
+public class QueueManager implements IQueueManager {
     private final Map<String, Queue<Order>> stallQueues = new HashMap<>();
     private final IWaitTimeEstimator waitTimeEstimator;
     
-    public QueueService(IWaitTimeEstimator waitTimeEstimator) {
+    public QueueManager(IWaitTimeEstimator waitTimeEstimator) {
         this.waitTimeEstimator = waitTimeEstimator;
     }
 

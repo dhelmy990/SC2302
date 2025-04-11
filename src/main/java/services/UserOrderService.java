@@ -1,15 +1,16 @@
-package queue;
+package services;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 
 import orders.Order;
+import queue.IQueueManager;
 
 public class UserOrderService implements IUserOrderService {
-    private final IQueueService queueService;
+    private final IQueueManager queueService;
 
-    public UserOrderService(IQueueService queueService) {
+    public UserOrderService(IQueueManager queueService) {
         this.queueService = queueService;
     }
 

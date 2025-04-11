@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import orders.Order;
-public interface IQueueService {
+public interface IQueueManager {
     int enqueueOrder(String stallName, Order order);
 
     Order dequeueOrder(String stallName);

@@ -1,14 +1,15 @@
-package queue;
+package services;
 
 import java.util.Map;
 import java.util.Queue;
 
 import orders.Order;
+import queue.IQueueManager;
 
 public class StallOrderService implements IStallOrderService {
-    private final IQueueService queueService;
+    private final IQueueManager queueService;
 
-    public StallOrderService(IQueueService queueService) {
+    public StallOrderService(IQueueManager queueService) {
         this.queueService = queueService;
     }
 

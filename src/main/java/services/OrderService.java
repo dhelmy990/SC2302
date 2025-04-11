@@ -10,13 +10,13 @@ import transactions.TxnManager;
 public class OrderService {
     private final OrderManager orderManager;
     private final TxnManager txnManager;
-    private final IQueueService queueService;
+    private final IQueueManager queueService;
     protected final IStallService stallService;
     private final IUserOrderService userOrderService;
     private final IStallOrderService stallOrderService;
 
     public OrderService(OrderManager orderManager,
-            IQueueService queueService,
+            IQueueManager queueService,
             IUserOrderService userOrderService,
             IStallOrderService stallOrderService,
             TxnManager txnManager,
@@ -37,7 +37,7 @@ public class OrderService {
         return orderManager;
     }
 
-    public IQueueService getQueueServiceInstance(){
+    public IQueueManager getQueueServiceInstance(){
         return queueService;
     }
 

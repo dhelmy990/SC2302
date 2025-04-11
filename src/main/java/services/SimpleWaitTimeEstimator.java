@@ -1,4 +1,4 @@
-package queue;
+package services;
 
 import java.util.Queue;
 import orders.Order;
