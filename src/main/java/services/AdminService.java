@@ -3,6 +3,7 @@ package services;
 import users.*;
 
 import java.util.List;
+import java.util.Optional;
 
 import stalls.*;
 
@@ -87,13 +88,13 @@ ITextInputHandler textInputHandler, IBooleanInputHandler booleanInputHandler,IAc
         try {
             String stallName = null;
             boolean isUnique = false;
-    
+
             int maxRetries = 3;
             int attempts = 0;
-            
+
             while (!isUnique && attempts < maxRetries) {
                 stallName = textInputHandler.getNonEmptyInput("Enter stall name: ");
-            
+
                 if (stallService.isStallNameTaken(stallName)) {
                     System.out.println("A stall with this name already exists. Please choose a different name.");
                     attempts++;
@@ -105,26 +106,40 @@ ITextInputHandler textInputHandler, IBooleanInputHandler booleanInputHandler,IAc
                     isUnique = true;
                 }
             }
-    
+
             // Ask if the user wants to assign an owner now
             boolean assignNow = booleanInputHandler.getYesNoInput("Do you want to assign an owner now?");
-    
+
             String ownerUsername = null;
             Owner matchedOwner = null;
-    
+
             if (assignNow) {
                 ownerUsername = textInputHandler.getNonEmptyInput("Enter owner username: ");
                 matchedOwner = findOwnerByUsername(ownerUsername);
-    
+
                 if (matchedOwner == null) {
                     System.out.println("Owner not found. Stall will not be assigned.");
+                    ownerUsername = null; // prevent assignment
+                } else {
+                    // Use a final copy for the lambda
+                    final String usernameToCheck = ownerUsername;
+                    Optional<Stall> existing = stallService.getAllStalls().stream()
+                            .filter(s -> usernameToCheck.equals(s.getOwnerUsername()))
+                            .findFirst();
+
+                    if (existing.isPresent()) {
+                        System.out.println("This owner is already managing stall: " + existing.get().getName());
+                        System.out.println("Stall will be created without assigning to this owner.");
+                        matchedOwner = null; // prevent assignment
+                        ownerUsername = null;
+                    }
                 }
             }
-    
+
             // Create the stall and add it to the system
             Stall stall = new Stall(stallName, ownerUsername);
             stallService.addStall(stall);
-    
+
             // Assign the stall to the owner if applicable
             if (matchedOwner != null) {
                 matchedOwner.setManagedStall(stall);
@@ -132,6 +147,7 @@ ITextInputHandler textInputHandler, IBooleanInputHandler booleanInputHandler,IAc
             } else {
                 System.out.println("Stall added without an assigned owner.");
             }
+
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
         }
@@ -165,27 +181,37 @@ ITextInputHandler textInputHandler, IBooleanInputHandler booleanInputHandler,IAc
 
     public void reassignStallToNewOwner() {
         stallService.viewAllStalls();
-        
+
         try {
             String stallId = textInputHandler.getNonEmptyInput("Enter Stall ID to reassign: ");
             Stall targetStall = stallService.findStallById(stallId);
-            
+
             if (targetStall == null) {
                 System.out.println("Stall not found.");
                 return;
             }
-            
+
             String newOwnerUsername = textInputHandler.getNonEmptyInput("Enter new owner username: ");
             Owner newOwner = findOwnerByUsername(newOwnerUsername);
-            
+
             if (newOwner == null) {
                 System.out.println("New owner not found.");
                 return;
             }
-            
+
+            // Check if this new owner already manages a stall
+            Optional<Stall> existing = stallService.getStallManagedBy(newOwnerUsername);
+
+            if (existing.isPresent()) {
+                System.out.println("This owner already manages stall: " + existing.get().getName());
+                System.out.println("Reassignment cancelled.");
+                return;
+            }
+
             targetStall.setOwnerUsername(newOwnerUsername);
             newOwner.setManagedStall(targetStall);
             System.out.println("Stall successfully reassigned to " + newOwnerUsername + ".");
+
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
         }

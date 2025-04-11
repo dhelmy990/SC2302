@@ -4,6 +4,7 @@ import stalls.IStallService;
 import stalls.Stall;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 public class StallManagementService implements IStallService {
     private final List<Stall> stalls;
@@ -74,4 +75,11 @@ public class StallManagementService implements IStallService {
         return stalls.stream()
                      .anyMatch(stall -> stall.getName().equalsIgnoreCase(stallName));
     }
+    
+public Optional<Stall> getStallManagedBy(String ownerUsername) {
+    return stalls.stream()
+            .filter(stall -> ownerUsername.equals(stall.getOwnerUsername()))
+            .findFirst();
+}
+
 }
