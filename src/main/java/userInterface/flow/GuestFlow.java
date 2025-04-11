@@ -11,12 +11,12 @@ import utils.OrderUtils;
 
 public class GuestFlow extends Flow {
 
-    OrderFlow orderFlow;
+    OrderProcessor orderFlow;
     UserOrderService userOrderService;
 
     public GuestFlow(DependencyContainer dependencies){
         super(dependencies);
-        orderFlow = new OrderFlow(dependencies);
+        orderFlow = new OrderProcessor(dependencies);
         this.userOrderService = dependencies.getUserOrderService();
     }
 

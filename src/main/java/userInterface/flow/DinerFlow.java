@@ -13,11 +13,11 @@ public class DinerFlow extends Flow{
 
     DinerMainMenu dinerMainMenu = new DinerMainMenu();
 
-    OrderFlow orderFlow;
+    OrderProcessor orderFlow;
 
     public DinerFlow(DependencyContainer dependencies){
         super(dependencies);
-        orderFlow = new OrderFlow(dependencies);
+        orderFlow = new OrderProcessor(dependencies);
     }
 
     @Override

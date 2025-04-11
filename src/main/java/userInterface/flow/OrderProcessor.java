@@ -7,19 +7,25 @@ import orders.Order;
 import payments.*;
 import services.INumericInputHandler;
 import services.ITextInputHandler;
+import services.OrderService;
 import services.PaymentService;
 import stalls.Stall;
 import users.Diner;
 import users.User;
 import utils.*;
 
-public class OrderFlow extends Flow {
+public class OrderProcessor {
 
     private final ITextInputHandler textInputHandler;
     private final INumericInputHandler numericInputHandler;
+    List<Stall> stalls;
+    List<User> users; 
+    OrderService orderService;
 
-    OrderFlow(DependencyContainer dependencies) {
-        super(dependencies);
+    OrderProcessor(DependencyContainer dependencies) {
+        this.orderService = dependencies.getOrderServiceInstance();
+        this.stalls = dependencies.getStalls();
+        this.users = dependencies.getUsers();
         this.textInputHandler = dependencies.getTextInputHandler();
         this.numericInputHandler = dependencies.getNumericInputHandler(); 
     }
