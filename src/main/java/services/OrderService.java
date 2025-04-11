@@ -53,7 +53,7 @@ public class OrderService {
             .toList();
     }
     public List<Order> getOrderHistory(String userId) {
-        return orderManager.getOrdersByUser(userId);
+        return userOrderService.getOrdersByUser(userId);
     }
 
     public double calculateTotalCost(java.util.List<inventory.Item> items) {

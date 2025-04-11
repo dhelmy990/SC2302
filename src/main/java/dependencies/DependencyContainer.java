@@ -27,7 +27,7 @@ public class DependencyContainer {
     private final IAccountUpdateService accountUpdateService;
     private final AuthenticationService authenticationService;
     private final IStallOrderService stallOrderService;
-    private final IUserOrderService userOrderService;
+    private final UserOrderService userOrderService;
 
 
     public DependencyContainer() {
@@ -95,6 +95,10 @@ public class DependencyContainer {
     }
     public INumericInputHandler getNumericInputHandler(){
         return numericInputHandler;
+    }
+
+    public UserOrderService getUserOrderService(){
+        return userOrderService;
     }
 
 }
