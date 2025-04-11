@@ -2,15 +2,18 @@ package services;
 
 import stalls.IStallService;
 import stalls.Stall;
+
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
 public class StallManagementService implements IStallService {
-    private final List<Stall> stalls;
+    
+    private final List<Stall> stalls = new ArrayList<>();
 
     public StallManagementService(List<Stall> stalls) {
-        this.stalls = stalls;
+        this.stalls.addAll(stalls);
     }
 
     @Override

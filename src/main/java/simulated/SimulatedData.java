@@ -1,9 +1,9 @@
 package simulated;
 
 import inventory.Item;
+import services.StallManagementService;
 import stalls.IStallService;
-import stalls.Stall;
-import canteen.CanteenManager;
+import stalls.*;
 import users.*;
 
 import java.util.ArrayList;
@@ -33,8 +33,8 @@ public class SimulatedData {
         globalStalls.add(s2);
 
         
-        if (stallService instanceof CanteenManager cm) {
-            globalStalls.forEach(cm::addStall);
+        if (stallService instanceof StallManagementService sms) {
+            globalStalls.forEach(sms::addStall);
         }
 
         // Add users

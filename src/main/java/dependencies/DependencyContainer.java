@@ -1,7 +1,6 @@
 package dependencies;
 
 import java.util.*;
-import canteen.CanteenManager;
 import orders.OrderManager;
 import queue.*;
 import services.*;
@@ -13,7 +12,7 @@ import users.User;
 public class DependencyContainer {
 
     private final OrderService orderService;
-    private final CanteenManager canteenManager;
+    private final StallManagementService stallManagementService;
     private final AdminService adminService;
     private final CompletionService completionService;
 
@@ -36,16 +35,17 @@ public class DependencyContainer {
         TxnManager txnManager = new TxnManager();
         IWaitTimeEstimator estimator = new SimpleWaitTimeEstimator();
         QueueService queueService = new QueueService(estimator);
-        this.canteenManager = new CanteenManager();
+        
         this.userOrderService = new UserOrderService(queueService);
         this.stallOrderService = new StallOrderService(queueService);
-        this.orderService = new OrderService(orderManager, queueService, userOrderService, stallOrderService, txnManager, canteenManager);
         UserInputHandler userInputHandler = new UserInputHandler(scanner);
         this.textInputHandler = userInputHandler;
         this.booleanInputHandler = userInputHandler;
         this.numericInputHandler = userInputHandler;
         this.stalls = SimulatedData.getSampleStalls();
-        this.users = SimulatedData.getSampleUsers(canteenManager);
+        this.stallManagementService = new StallManagementService(stalls);
+        this.orderService = new OrderService(orderManager, queueService, userOrderService, stallOrderService, txnManager, stallManagementService);
+        this.users = SimulatedData.getSampleUsers(stallManagementService);
         // Set up adminService
         StallManagementService stallManagementService = new StallManagementService(stalls);
         UserManagementService userManagementService = new UserManagementService(users, stallManagementService);
@@ -59,8 +59,8 @@ public class DependencyContainer {
                 booleanInputHandler, accountUpdateService, users);
     }
 
-    public CanteenManager getCanteenManagerInstance() {
-        return this.canteenManager;
+    public StallManagementService getStallManagementServiceInstance() {
+        return this.stallManagementService;
     }
 
     public OrderService getOrderServiceInstance() {

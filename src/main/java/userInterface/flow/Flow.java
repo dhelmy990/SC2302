@@ -21,7 +21,7 @@ public abstract class Flow {
         this.numericInputHandler = dependencies.getNumericInputHandler();
         this.textInputHandler = dependencies.getTextInputHandler();
         this.stalls = dependencies.getStalls();
-        this.canteenManager = dependencies.getCanteenManagerInstance();
+        this.canteenManager = dependencies.getStallManagementServiceInstance();
         this.users = dependencies.getUsers();
         this.orderService = dependencies.getOrderServiceInstance();
         this.adminService = dependencies.getAdminService();
